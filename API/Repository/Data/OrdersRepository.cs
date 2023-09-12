@@ -20,40 +20,57 @@ namespace API.Repositories
 
         public List<orderVM> GetAllOrder()
         {
-            var result = (from u in context.orders_Items
-                          join x in context.orders
-                          on u.Order_Id equals x.ID
-                          join y in context.items
-                          on u.Item_Id equals y.ID
+            var result = (from oi in context.orders_Items
+                          join o in context.orders
+                          on oi.Order_Id equals o.ID
                           select new orderVM
                           {
-                              Item_Id = u.Item_Id,
-                              Order_Id = u.Order_Id,
-                              ID = u.ID,
-                              Customer_Id = x.Customer_Id,
-                              Order_Date = x.Order_Date, // Menggunakan x.Order_Date karena mengambil tanggal pesanan dari tabel orders
+                              Item_Id = oi.Item_Id,
+                              Order_Id = oi.Order_Id,
+                              ID = oi.ID,
+                              Customer_Id = o.Customer_Id,
+                              Order_Date = o.Order_Date,
                           }).ToList();
             return result;
         }
 
-        public orderVM GetOrderById(long ID)
+        //public orderVM GetOrderById(long ID)
+        //{
+        //    var result = (from u in context.orders_Items
+        //                  join x in context.orders
+        //                  on u.Order_Id equals x.ID
+        //                  join y in context.items
+        //                  on u.Item_Id equals y.ID
+        //                  where x.ID == ID
+        //                  select new orderVM
+        //                  {
+        //                      Item_Id = u.Item_Id,
+        //                      Order_Id = u.Order_Id,
+        //                      ID = u.ID,
+        //                      Customer_Id = x.Customer_Id,
+        //                      Order_Date = x.Order_Date, // Menggunakan x.Order_Date karena mengambil tanggal pesanan dari tabel orders
+        //                  }).FirstOrDefault();
+        //    return result;
+        //}
+        public List<orderVM> GetOrderById(long ID)
         {
-            var result = (from u in context.orders_Items
-                          join x in context.orders
-                          on u.Order_Id equals x.ID
-                          join y in context.items
-                          on u.Item_Id equals y.ID
-                          where u.ID == ID
-                          select new orderVM
-                          {
-                              Item_Id = u.Item_Id,
-                              Order_Id = u.Order_Id,
-                              ID = u.ID,
-                              Customer_Id = x.Customer_Id,
-                              Order_Date = x.Order_Date, // Menggunakan x.Order_Date karena mengambil tanggal pesanan dari tabel orders
-                          }).FirstOrDefault();
-            return result;
+            var results = (from u in context.orders_Items
+                           join x in context.orders
+                           on u.Order_Id equals x.ID
+                           join y in context.items
+                           on u.Item_Id equals y.ID
+                           where x.ID == ID
+                           select new orderVM
+                           {
+                               Item_Id = u.Item_Id,
+                               Order_Id = u.Order_Id,
+                               ID = u.ID,
+                               Customer_Id = x.Customer_Id,
+                               Order_Date = x.Order_Date, // Menggunakan x.Order_Date karena mengambil tanggal pesanan dari tabel orders
+                           }).ToList();
+            return results;
         }
+
 
         public bool UpdateOrder(orderVM updatedOrder)
         {

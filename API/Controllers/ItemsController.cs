@@ -26,18 +26,60 @@ namespace API.Controllers
         }
 
         [HttpGet("GetAllItem")]
-        public ActionResult<List<items>> GetAllItem()
+        public ActionResult<CustomResponse<itemVM>> GetAllItem(int page = 1, int pageSize = 10)
         {
             try
             {
-                var items = itemsRepository.GetAllItem();
-                return Ok(items);
+                var allItems = itemsRepository.GetAllItem();
+
+                // menjumlahkantotal nomor dari items dan nomor dari pages
+                int totalItems = allItems.Count;
+                int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+                // validasi nomor page
+                if (page < 1)
+                    page = 1;
+                if (page > totalPages)
+                    page = totalPages;
+
+                // Menjumlahkan items untuk dikembalikan ke current page
+                var itemsToReturn = allItems
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                // membuat custom response object dengan informasi pagination 
+                var response = new CustomResponse<itemVM>
+                {
+                    Meta = new Meta
+                    {
+                        Code = 200,
+                        Message = "Success",
+                        Pagination = new Pagination
+                        {
+                            Current = page.ToString(),
+                            Next = (page < totalPages) ? (page + 1).ToString() : null,
+                            Prev = (page > 1) ? (page - 1).ToString() : null,
+                            Count = itemsToReturn.Count
+                        }
+                    },
+                    Data = itemsToReturn
+                };
+
+                if (itemsToReturn.Count >= 15)
+                {
+                    response.Meta.Pagination = null;
+                }
+                return response;
             }
             catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Get All Items Server Error");
             }
         }
+
+
+
 
         [HttpGet("GetItemById/{id}")]
         public ActionResult<List<itemVM>> GetItemById(long id)
@@ -96,5 +138,26 @@ namespace API.Controllers
         }
 
     }
+    public class CustomResponse<T>
+    {
+        public Meta Meta { get; set; }
+        public List<T> Data { get; set; }
+    }
+
+    public class Meta
+    {
+        public int Code { get; set; }
+        public string Message { get; set; }
+        public Pagination Pagination { get; set; }
+    }
+
+    public class Pagination
+    {
+        public string Current { get; set; }
+        public string Next { get; set; }
+        public string Prev { get; set; }
+        public int Count { get; set; }
+    }
+
 }
 

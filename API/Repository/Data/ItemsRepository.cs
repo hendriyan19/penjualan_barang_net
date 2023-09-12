@@ -17,15 +17,14 @@ namespace API.Repositories
             this.context = context;
         }
 
-        public List<items> GetAllItem()
+        public List<itemVM> GetAllItem()
         {
             var result = (from u in context.items
-                          select new items
+                          select new itemVM
                           {
                               ID = u.ID,
                               Item_Name=u.Item_Name,
-                              Item_Price=u.Item_Price,
-                              Orders_Items = u.Orders_Items
+                              Item_Price=u.Item_Price
                           }).ToList();
             return result;
         }
