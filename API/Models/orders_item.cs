@@ -3,15 +3,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace API.Models
 {
-    public class orders_item
+    public class OrderItem
     {
         [Key]
         public long ID { get; set; }
 
-        [ForeignKey("orders")]
-        public long? Order_Id { get; set; }
 
-        [ForeignKey("items")]
-        public long? Item_Id { get; set; }
+        [ForeignKey("Order")]
+        public long Order_Id { get; set; }
+        public virtual Order Order { get; set; }
+
+        [ForeignKey("Item")]
+        public long Item_Id { get; set; }
+        public virtual Item Item { get; set; }
     }
 }

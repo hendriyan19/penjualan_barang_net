@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Repositories
 {
-    public class ItemsRepository : GeneralRepository<MyContext, items, long>
+    public class ItemsRepository : GeneralRepository<MyContext, Item, long>
     {
         private readonly MyContext context;
 
@@ -19,7 +19,7 @@ namespace API.Repositories
 
         public List<itemVM> GetAllItem()
         {
-            var result = (from u in context.items
+            var result = (from u in context.items                       
                           select new itemVM
                           {
                               ID = u.ID,
@@ -43,7 +43,7 @@ namespace API.Repositories
 
         public void AddItem(itemVM newItem)
         {
-            var newItemEntity = new items
+            var newItemEntity = new Item
             {
                 ID = newItem.ID,
                 Item_Name = newItem.Item_Name,

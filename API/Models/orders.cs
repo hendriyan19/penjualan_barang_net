@@ -5,16 +5,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace API.Models
 {
-    public class orders
+    public class Order
     {
         [Key]
         public long ID { get; set; }
+
+        [Required]
         public DateTime Order_Date { get; set; }
 
-        [ForeignKey("customers")]
-        public long? Customer_Id { get; set; }
-        public virtual customers Customers { get; set; }
+        [ForeignKey("Customer")]
+        public long Customer_Id { get; set; }
+        public virtual Customer Customer { get; set; }
 
-        public virtual ICollection<orders_item> Orders_Items { get; set; }
+        public virtual ICollection<OrderItem> OrderItems { get; set; }
     }
 }

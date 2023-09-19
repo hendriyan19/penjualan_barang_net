@@ -4,13 +4,17 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace API.Models
 {
-    public class items
+    public class Item
     {
         [Key]
-        public long? ID { get; set; }
-        public string? Item_Name { get; set; }
-        public long? Item_Price { get; set; }
+        public long ID { get; set; }
 
-        public virtual ICollection<orders_item> Orders_Items { get; set; }
+        [Required]
+        public string Item_Name { get; set; }
+
+        [Required]
+        public long Item_Price { get; set; }
+
+        public virtual ICollection<OrderItem> OrderItems { get; set; }
     }
 }

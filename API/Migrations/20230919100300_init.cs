@@ -27,8 +27,8 @@ namespace API.Migrations
                 {
                     ID = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Item_Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Item_Price = table.Column<long>(type: "bigint", nullable: true)
+                    Item_Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Item_Price = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -42,18 +42,17 @@ namespace API.Migrations
                     ID = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Order_Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Customer_Id = table.Column<long>(type: "bigint", nullable: true),
-                    CustomersID = table.Column<long>(type: "bigint", nullable: true)
+                    Customer_Id = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_orders", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_orders_customers_CustomersID",
-                        column: x => x.CustomersID,
+                        name: "FK_orders_customers_Customer_Id",
+                        column: x => x.Customer_Id,
                         principalTable: "customers",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -62,42 +61,40 @@ namespace API.Migrations
                 {
                     ID = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Order_Id = table.Column<long>(type: "bigint", nullable: true),
-                    Item_Id = table.Column<long>(type: "bigint", nullable: true),
-                    itemsID = table.Column<long>(type: "bigint", nullable: true),
-                    ordersID = table.Column<long>(type: "bigint", nullable: true)
+                    Order_Id = table.Column<long>(type: "bigint", nullable: false),
+                    Item_Id = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_orders_Items", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_orders_Items_items_itemsID",
-                        column: x => x.itemsID,
+                        name: "FK_orders_Items_items_Item_Id",
+                        column: x => x.Item_Id,
                         principalTable: "items",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_orders_Items_orders_ordersID",
-                        column: x => x.ordersID,
+                        name: "FK_orders_Items_orders_Order_Id",
+                        column: x => x.Order_Id,
                         principalTable: "orders",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_orders_CustomersID",
+                name: "IX_orders_Customer_Id",
                 table: "orders",
-                column: "CustomersID");
+                column: "Customer_Id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_orders_Items_itemsID",
+                name: "IX_orders_Items_Item_Id",
                 table: "orders_Items",
-                column: "itemsID");
+                column: "Item_Id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_orders_Items_ordersID",
+                name: "IX_orders_Items_Order_Id",
                 table: "orders_Items",
-                column: "ordersID");
+                column: "Order_Id");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

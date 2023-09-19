@@ -2,12 +2,12 @@
 
 namespace API.Models
 {
-    public class customers
+    public class Customer
     {
         [Key]
         public long ID { get; set; }
-        public string? Customer_Phone { get; set; }
-        public string? Customer_Email { get; set; }
 
+        public string Customer_Phone { get; set; }
+        public string Customer_Email { get; set; }
     }
 }

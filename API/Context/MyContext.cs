@@ -9,9 +9,9 @@ namespace API.Context
         {
         }
 
-        public DbSet<customers> customers { get; set; }
-        public DbSet<items> items { get; set; }
-        public DbSet<orders> orders { get; set; }
-        public DbSet<orders_item> orders_Items { get; set; }
+        public DbSet<Customer> customers { get; set; }
+        public DbSet<Item> items { get; set; }
+        public DbSet<Order> orders { get; set; }
+        public DbSet<OrderItem> orders_Items { get; set; }
     }
 }

@@ -19,7 +19,7 @@ namespace API.Migrations
                 .HasAnnotation("ProductVersion", "5.0.9")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("API.Models.customers", b =>
+            modelBuilder.Entity("API.Models.Customer", b =>
                 {
                     b.Property<long>("ID")
                         .ValueGeneratedOnAdd()
@@ -37,17 +37,18 @@ namespace API.Migrations
                     b.ToTable("customers");
                 });
 
-            modelBuilder.Entity("API.Models.items", b =>
+            modelBuilder.Entity("API.Models.Item", b =>
                 {
-                    b.Property<long?>("ID")
+                    b.Property<long>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Item_Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("Item_Price")
+                    b.Property<long>("Item_Price")
                         .HasColumnType("bigint");
 
                     b.HasKey("ID");
@@ -55,17 +56,14 @@ namespace API.Migrations
                     b.ToTable("items");
                 });
 
-            modelBuilder.Entity("API.Models.orders", b =>
+            modelBuilder.Entity("API.Models.Order", b =>
                 {
                     b.Property<long>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<long?>("Customer_Id")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("CustomersID")
+                    b.Property<long>("Customer_Id")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime>("Order_Date")
@@ -73,67 +71,71 @@ namespace API.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("CustomersID");
+                    b.HasIndex("Customer_Id");
 
                     b.ToTable("orders");
                 });
 
-            modelBuilder.Entity("API.Models.orders_item", b =>
+            modelBuilder.Entity("API.Models.OrderItem", b =>
                 {
                     b.Property<long>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<long?>("Item_Id")
+                    b.Property<long>("Item_Id")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("Order_Id")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("itemsID")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("ordersID")
+                    b.Property<long>("Order_Id")
                         .HasColumnType("bigint");
 
                     b.HasKey("ID");
 
-                    b.HasIndex("itemsID");
+                    b.HasIndex("Item_Id");
 
-                    b.HasIndex("ordersID");
+                    b.HasIndex("Order_Id");
 
                     b.ToTable("orders_Items");
                 });
 
-            modelBuilder.Entity("API.Models.orders", b =>
+            modelBuilder.Entity("API.Models.Order", b =>
                 {
-                    b.HasOne("API.Models.customers", "Customers")
+                    b.HasOne("API.Models.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomersID");
+                        .HasForeignKey("Customer_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Customers");
+                    b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("API.Models.orders_item", b =>
+            modelBuilder.Entity("API.Models.OrderItem", b =>
                 {
-                    b.HasOne("API.Models.items", null)
-                        .WithMany("Orders_Items")
-                        .HasForeignKey("itemsID");
+                    b.HasOne("API.Models.Item", "Item")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("Item_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("API.Models.orders", null)
-                        .WithMany("Orders_Items")
-                        .HasForeignKey("ordersID");
+                    b.HasOne("API.Models.Order", "Order")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("Order_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Item");
+
+                    b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("API.Models.items", b =>
+            modelBuilder.Entity("API.Models.Item", b =>
                 {
-                    b.Navigation("Orders_Items");
+                    b.Navigation("OrderItems");
                 });
 
-            modelBuilder.Entity("API.Models.orders", b =>
+            modelBuilder.Entity("API.Models.Order", b =>
                 {
-                    b.Navigation("Orders_Items");
+                    b.Navigation("OrderItems");
                 });
 #pragma warning restore 612, 618
         }

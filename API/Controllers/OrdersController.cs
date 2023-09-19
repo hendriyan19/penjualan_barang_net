@@ -16,7 +16,7 @@ namespace API.Controllers
     [Produces("application/json")]
     [Route("api/[controller]")]
     [ApiController]
-    public class OrdersController : BaseController<orders_item, OrdersRepository, long>
+    public class OrdersController : BaseController<OrderItem, OrdersRepository, long>
     {
         private readonly OrdersRepository ordersRepository;
 

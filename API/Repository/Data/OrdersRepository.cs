@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Repositories
 {
-    public class OrdersRepository : GeneralRepository<MyContext, orders_item, long>
+    public class OrdersRepository : GeneralRepository<MyContext, OrderItem, long>
     {
         private readonly MyContext context;
 
@@ -107,7 +107,7 @@ namespace API.Repositories
         {
             try
             {
-                var orderItem = new orders_item
+                var orderItem = new OrderItem
                 {
                     Item_Id = newOrder.Item_Id,
                     Order_Id = newOrder.Order_Id
