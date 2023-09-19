@@ -1,13 +1,11 @@
-﻿using API.Base;
-using API.Models;
-using API.Repositories;
-using API.Repository.Interface;
+﻿using API.Repositories;
 using API.ViewModel;
+using Dapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,39 +14,41 @@ namespace API.Controllers
     [Produces("application/json")]
     [Route("api/[controller]")]
     [ApiController]
-    public class ItemsController : BaseController<Item, ItemsRepository, long>
+    public class ItemsController : ControllerBase
     {
+        private readonly IDbConnection _dbConnection;
         private readonly ItemsRepository itemsRepository;
 
-        public ItemsController(ItemsRepository itemsRepository) : base(itemsRepository)
+        public ItemsController(IDbConnection dbConnection, ItemsRepository itemsRepository)
         {
+            _dbConnection = dbConnection;
             this.itemsRepository = itemsRepository;
         }
 
         [HttpGet("GetAllItem")]
-        public ActionResult<CustomResponse<itemVM>> GetAllItem(int page = 1, int pageSize = 10)
+        public async Task<ActionResult<CustomResponse<itemVM>>> GetAllItem(int page = 1, int pageSize = 10)
         {
             try
             {
                 var allItems = itemsRepository.GetAllItem();
 
-                // menjumlahkantotal nomor dari items dan nomor dari pages
-                int totalItems = allItems.Count;
+                // Menghitung total item dan halaman
+                int totalItems = allItems.Count();
                 int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 
-                // validasi nomor page
+                // Validasi nomor halaman
                 if (page < 1)
                     page = 1;
                 if (page > totalPages)
                     page = totalPages;
 
-                // Menjumlahkan items untuk dikembalikan ke current page
+                // Mengambil item untuk halaman saat ini
                 var itemsToReturn = allItems
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
                     .ToList();
 
-                // membuat custom response object dengan informasi pagination 
+                // Membuat custom response object dengan informasi pagination
                 var response = new CustomResponse<itemVM>
                 {
                     Meta = new Meta
@@ -70,7 +70,8 @@ namespace API.Controllers
                 {
                     response.Meta.Pagination = null;
                 }
-                return response;
+
+                return Ok(response);
             }
             catch (Exception)
             {
@@ -78,16 +79,22 @@ namespace API.Controllers
             }
         }
 
-
-
-
         [HttpGet("GetItemById/{id}")]
-        public ActionResult<List<itemVM>> GetItemById(long id)
+        public async Task<ActionResult<itemVM>> GetItemById(long id)
         {
             try
             {
+               
                 var item = itemsRepository.GetItemById(id);
-                return Ok(item);
+
+                if (item != null)
+                {
+                    return Ok(item);
+                }
+                else
+                {
+                    return NotFound("Item not found");
+                }
             }
             catch (Exception)
             {
@@ -96,12 +103,12 @@ namespace API.Controllers
         }
 
         [HttpPost("AddItem")]
-        public ActionResult AddItem(itemVM newItem)
+        public async Task<ActionResult> AddItem(itemVM newItem)
         {
             try
             {
                 itemsRepository.AddItem(newItem);
-                return Ok(); // Return 200 OK if the item is successfully added
+                return Ok("Item added successfully");
             }
             catch (Exception)
             {
@@ -110,7 +117,7 @@ namespace API.Controllers
         }
 
         [HttpPut("UpdateItem")]
-        public ActionResult UpdateItem(itemVM updatedItem)
+        public async Task<ActionResult> UpdateItem(itemVM updatedItem)
         {
             try
             {
@@ -124,7 +131,7 @@ namespace API.Controllers
         }
 
         [HttpDelete("DeleteItem/{id}")]
-        public ActionResult DeleteItem(long id)
+        public async Task<ActionResult> DeleteItem(long id)
         {
             try
             {
@@ -136,28 +143,26 @@ namespace API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Delete Server Error");
             }
         }
-
     }
-    public class CustomResponse<T>
-    {
-        public Meta Meta { get; set; }
-        public List<T> Data { get; set; }
-    }
-
-    public class Meta
-    {
-        public int Code { get; set; }
-        public string Message { get; set; }
-        public Pagination Pagination { get; set; }
-    }
-
-    public class Pagination
-    {
-        public string Current { get; set; }
-        public string Next { get; set; }
-        public string Prev { get; set; }
-        public int Count { get; set; }
-    }
-
 }
 
+public class CustomResponse<T>
+{
+    public Meta Meta { get; set; }
+    public List<T> Data { get; set; }
+}
+
+public class Meta
+{
+    public int Code { get; set; }
+    public string Message { get; set; }
+    public Pagination Pagination { get; set; }
+}
+
+public class Pagination
+{
+    public string Current { get; set; }
+    public string Next { get; set; }
+    public string Prev { get; set; }
+    public int Count { get; set; }
+}

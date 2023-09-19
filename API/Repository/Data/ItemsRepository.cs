@@ -1,81 +1,69 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using API.Context;
+using System.Data;
+using System.Data.SqlClient;
 using API.Models;
-using API.Repository;
 using API.ViewModel;
-using Microsoft.EntityFrameworkCore;
+using Dapper;
+using Microsoft.Data.SqlClient;
 
 namespace API.Repositories
 {
-    public class ItemsRepository : GeneralRepository<MyContext, Item, long>
+    public class ItemsRepository
     {
-        private readonly MyContext context;
-
-        public ItemsRepository(MyContext context):base (context)
+        private readonly string _connectionString;
+        public ItemsRepository(string connectionString)
         {
-            this.context = context;
+            _connectionString = connectionString;
         }
+
 
         public List<itemVM> GetAllItem()
         {
-            var result = (from u in context.items                       
-                          select new itemVM
-                          {
-                              ID = u.ID,
-                              Item_Name=u.Item_Name,
-                              Item_Price=u.Item_Price
-                          }).ToList();
+            using IDbConnection dbConnection = new SqlConnection(_connectionString);
+            dbConnection.Open();
+
+            string query = "SELECT ID, Item_Name, Item_Price FROM items";
+            var result = dbConnection.Query<itemVM>(query).AsList();
+
             return result;
         }
-        public List<itemVM> GetItemById(long ID) {
-        
-            var result = (from u in context.items
-                          where u.ID == ID
-                          select new itemVM
-                          {
-                              ID = u.ID,
-                              Item_Name = u.Item_Name,
-                              Item_Price = u.Item_Price
-                          }).ToList();
+
+        public List<itemVM> GetItemById(long ID)
+        {
+            using IDbConnection dbConnection = new SqlConnection(_connectionString);
+            dbConnection.Open();
+
+            string query = "SELECT ID, Item_Name, Item_Price FROM items WHERE ID = @ID";
+            var result = dbConnection.Query<itemVM>(query, new { ID }).AsList();
+
             return result;
         }
 
         public void AddItem(itemVM newItem)
         {
-            var newItemEntity = new Item
-            {
-                ID = newItem.ID,
-                Item_Name = newItem.Item_Name,
-                Item_Price = newItem.Item_Price
-            };
+            using IDbConnection dbConnection = new SqlConnection(_connectionString);
+            dbConnection.Open();
 
-            context.items.Add(newItemEntity);
-            context.SaveChanges();
+            string query = "INSERT INTO items (Item_Name, Item_Price) VALUES (@Item_Name, @Item_Price)";
+            dbConnection.Execute(query, newItem);
         }
 
         public void UpdateItem(itemVM updatedItem)
         {
-            var existingItem = context.items.FirstOrDefault(u => u.ID == updatedItem.ID);
+            using IDbConnection dbConnection = new SqlConnection(_connectionString);
+            dbConnection.Open();
 
-            if (existingItem != null)
-            {
-                existingItem.Item_Name = updatedItem.Item_Name;
-                existingItem.Item_Price = updatedItem.Item_Price;
-
-                context.SaveChanges();
-            }
+            string query = "UPDATE items SET Item_Name = @Item_Name, Item_Price = @Item_Price WHERE ID = @ID";
+            dbConnection.Execute(query, updatedItem);
         }
 
         public void DeleteItem(long ID)
         {
-            var existingItem = context.items.FirstOrDefault(u => u.ID == ID);
+            using IDbConnection dbConnection = new SqlConnection(_connectionString);
+            dbConnection.Open();
 
-            if (existingItem != null)
-            {
-                context.items.Remove(existingItem);
-                context.SaveChanges();
-            }
+            string query = "DELETE FROM items WHERE ID = @ID";
+            dbConnection.Execute(query, new { ID });
         }
     }
 }

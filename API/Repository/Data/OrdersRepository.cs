@@ -1,130 +1,97 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using API.Context;
 using API.Models;
-using API.Repository;
 using API.ViewModel;
-using Microsoft.EntityFrameworkCore;
+using Dapper;
+using Microsoft.Data.SqlClient;
 
 namespace API.Repositories
 {
-    public class OrdersRepository : GeneralRepository<MyContext, OrderItem, long>
+    public class OrdersRepository
     {
-        private readonly MyContext context;
+        private readonly string _connectionString;
 
-        public OrdersRepository(MyContext context):base(context)
+        public OrdersRepository(string connectionString)
         {
-            this.context = context;
+            _connectionString = connectionString;
         }
 
         public List<orderVM> GetAllOrder()
         {
-            var result = (from oi in context.orders_Items
-                          join o in context.orders
-                          on oi.Order_Id equals o.ID
-                          select new orderVM
-                          {
-                              Item_Id = oi.Item_Id,
-                              Order_Id = oi.Order_Id,
-                              ID = oi.ID,
-                              Customer_Id = o.Customer_Id,
-                              Order_Date = o.Order_Date,
-                          }).ToList();
+            using IDbConnection dbConnection = new SqlConnection(_connectionString);
+            dbConnection.Open();
+
+            string query = @"SELECT oi.Item_Id, oi.Order_Id, oi.ID, o.Customer_Id, o.Order_Date
+                           FROM orders_Items oi
+                           INNER JOIN orders o 
+                           ON oi.Order_Id = o.ID";
+
+            var result = dbConnection.Query<orderVM>(query).ToList();
+
             return result;
         }
 
-        //public orderVM GetOrderById(long ID)
-        //{
-        //    var result = (from u in context.orders_Items
-        //                  join x in context.orders
-        //                  on u.Order_Id equals x.ID
-        //                  join y in context.items
-        //                  on u.Item_Id equals y.ID
-        //                  where x.ID == ID
-        //                  select new orderVM
-        //                  {
-        //                      Item_Id = u.Item_Id,
-        //                      Order_Id = u.Order_Id,
-        //                      ID = u.ID,
-        //                      Customer_Id = x.Customer_Id,
-        //                      Order_Date = x.Order_Date, // Menggunakan x.Order_Date karena mengambil tanggal pesanan dari tabel orders
-        //                  }).FirstOrDefault();
-        //    return result;
-        //}
         public List<orderVM> GetOrderById(long ID)
         {
-            var results = (from u in context.orders_Items
-                           join x in context.orders
-                           on u.Order_Id equals x.ID
-                           join y in context.items
-                           on u.Item_Id equals y.ID
-                           where x.ID == ID
-                           select new orderVM
-                           {
-                               Item_Id = u.Item_Id,
-                               Order_Id = u.Order_Id,
-                               ID = u.ID,
-                               Customer_Id = x.Customer_Id,
-                               Order_Date = x.Order_Date, // Menggunakan x.Order_Date karena mengambil tanggal pesanan dari tabel orders
-                           }).ToList();
-            return results;
-        }
+            using IDbConnection dbConnection = new SqlConnection(_connectionString);
+            dbConnection.Open();
 
+            string query = @"SELECT oi.Item_Id, oi.Order_Id, oi.ID, o.Customer_Id, o.Order_Date
+                             FROM orders_Items oi
+                             INNER JOIN orders o ON oi.Order_Id = o.ID
+                             WHERE o.ID = @ID";
+
+            var result = dbConnection.Query<orderVM>(query, new { ID }).ToList();
+
+            return result;
+        }
 
         public bool UpdateOrder(orderVM updatedOrder)
         {
-            var existingOrder = context.orders.FirstOrDefault(u => u.ID == updatedOrder.ID);
-           
-            if (existingOrder != null )
-            {
-                // Mengupdate properti yang diinginkan
-                existingOrder.Order_Date = updatedOrder.Order_Date;
-                existingOrder.Customer_Id = updatedOrder.Customer_Id;
-                context.SaveChanges();
-                return true;
-            }
+            using IDbConnection dbConnection = new SqlConnection(_connectionString);
+            dbConnection.Open();
 
-            return false;
+            string query = @"UPDATE orders
+                             SET Order_Date = @Order_Date, Customer_Id = @Customer_Id
+                             WHERE ID = @ID";
+
+            int rowsAffected = dbConnection.Execute(query, updatedOrder);
+
+            return rowsAffected > 0;
         }
-
 
         public bool DeleteOrder(long ID)
         {
-            var existingOrder = context.orders_Items.FirstOrDefault(u => u.ID == ID);
+            using IDbConnection dbConnection = new SqlConnection(_connectionString);
+            dbConnection.Open();
 
-            if (existingOrder != null)
-            {
-                context.orders_Items.Remove(existingOrder);
-                context.SaveChanges();
-                return true;
-            }
+            string query = "DELETE FROM orders_Items WHERE ID = @ID";
 
-            return false;
+            int rowsAffected = dbConnection.Execute(query, new { ID });
+
+            return rowsAffected > 0;
         }
 
         public bool AddOrder(orderVM newOrder)
         {
             try
             {
-                var orderItem = new OrderItem
-                {
-                    Item_Id = newOrder.Item_Id,
-                    Order_Id = newOrder.Order_Id
-                };
+                using IDbConnection dbConnection = new SqlConnection(_connectionString);
+                dbConnection.Open();
 
-                context.orders_Items.Add(orderItem);
-                context.SaveChanges();
+                string insertOrderItemQuery = "INSERT INTO orders_Items (Item_Id, Order_Id) VALUES (@Item_Id, @Order_Id)";
+                dbConnection.Execute(insertOrderItemQuery, new { newOrder.Item_Id, newOrder.Order_Id });
+
                 return true;
             }
             catch (Exception)
             {
-                // Penanganan kesalahan jika terjadi
                 return false;
             }
         }
-
-
-
     }
 }

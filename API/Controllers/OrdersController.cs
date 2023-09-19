@@ -1,13 +1,11 @@
-﻿using API.Base;
-using API.Models;
-using API.Repositories;
-using API.Repository.Interface;
+﻿using API.Repositories;
 using API.ViewModel;
+using Dapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,36 +14,24 @@ namespace API.Controllers
     [Produces("application/json")]
     [Route("api/[controller]")]
     [ApiController]
-    public class OrdersController : BaseController<OrderItem, OrdersRepository, long>
+    public class OrdersController : ControllerBase
     {
+        private readonly IDbConnection _dbConnection;
         private readonly OrdersRepository ordersRepository;
 
-        public OrdersController(OrdersRepository ordersRepository) : base(ordersRepository)
+        public OrdersController(IDbConnection dbConnection, OrdersRepository ordersRepository)
         {
+            _dbConnection = dbConnection;
             this.ordersRepository = ordersRepository;
+
         }
 
-        //[HttpGet("GetOrderById/{id}")]
-        //public ActionResult GetOrderById(long id)
-        //{
-        //    try
-        //    {
-        //        var dataMaster = ordersRepository.GetOrderById(id);
-        //        return Ok(dataMaster);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        return StatusCode(StatusCodes.Status500InternalServerError,
-        //          "Get Order by ID Server Error");
-        //    }
-        //}
-        [HttpGet("GetOrderByOrderId/{id}")] //API/orders/GetOrderByOrderId/31?page=1&pagesize=10
+        [HttpGet("GetOrderByOrderId/{id}")]
         public ActionResult<CustomResponse<orderVM>> GetOrderById(long id, int page = 1, int pageSize = 10)
         {
             try
             {
                 var orders = ordersRepository.GetOrderById(id);
-
                 if (orders.Count == 0)
                 {
                     return NotFound(); // Jika pesanan tidak ditemukan, kembalikan 404 Not Found.
@@ -70,122 +56,107 @@ namespace API.Controllers
             }
         }
 
-        //[HttpGet("GetAllOrder")]
-        //public ActionResult GetAllOrder()
-        //{
-        //    try
-        //    {
-        //        var dataMy = ordersRepository.GetAllOrder();
-        //        return Ok(dataMy);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        return StatusCode(StatusCodes.Status500InternalServerError,
-        //            "Get All Order Server Error");
-        //    }
-        //}
-
         [HttpGet("GetAllOrder")]
-public ActionResult<CustomResponse<orderVM>> GetAllOrder(int page = 1, int pageSize = 10)
-{
-    try
-    {
-        var allOrders = ordersRepository.GetAllOrder();
-
-        // menjumlahkan total nomor dari orders dan nomor dari pages
-        int totalOrders = allOrders.Count;
-        int totalPages = (int)Math.Ceiling((double)totalOrders / pageSize);
-
-        // validasi nomor page
-        if (page < 1)
-            page = 1;
-        if (page > totalPages)
-            page = totalPages;
-
-        // Menjumlahkan orders untuk dikembalikan ke current page
-        var ordersToReturn = allOrders
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToList();
-
-        // membuat custom response object dengan informasi pagination 
-        var response = new CustomResponse<orderVM>
+        public ActionResult<CustomResponse<orderVM>> GetAllOrder(int page = 1, int pageSize = 10)
         {
-            Meta = new Meta
+            try
             {
-                Code = 200,
-                Message = "Success",
-                Pagination = new Pagination
+                var allOrders = ordersRepository.GetAllOrder();
+
+                // menjumlahkan total nomor dari orders dan nomor dari pages
+                int totalOrders = allOrders.Count;
+                int totalPages = (int)Math.Ceiling((double)totalOrders / pageSize);
+
+                // validasi nomor page
+                if (page < 1)
+                    page = 1;
+                if (page > totalPages)
+                    page = totalPages;
+
+                // Menjumlahkan pesanan untuk dikembalikan ke current page
+                var ordersToReturn = allOrders
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                // membuat custom response object dengan informasi pagination 
+                var response = new CustomResponse<orderVM>
                 {
-                    Current = page.ToString(),
-                    Next = (page < totalPages) ? (page + 1).ToString() : null,
-                    Prev = (page > 1) ? (page - 1).ToString() : null,
-                    Count = ordersToReturn.Count
+                    Meta = new Meta
+                    {
+                        Code = 200,
+                        Message = "Success",
+                        Pagination = new Pagination
+                        {
+                            Current = page.ToString(),
+                            Next = (page < totalPages) ? (page + 1).ToString() : null,
+                            Prev = (page > 1) ? (page - 1).ToString() : null,
+                            Count = ordersToReturn.Count
+                        }
+                    },
+                    Data = ordersToReturn
+                };
+
+                if (ordersToReturn.Count >= 15)
+                {
+                    response.Meta.Pagination = null;
                 }
-            },
-            Data = ordersToReturn
-        };
-
-        if (ordersToReturn.Count >= 15)
-        {
-            response.Meta.Pagination = null;
+                return response;
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Get All Order Server Error");
+            }
         }
-        return response;
-    }
-    catch (Exception)
-    {
-        return StatusCode(StatusCodes.Status500InternalServerError, "Get All Order Server Error");
-    }
-}
-
 
         [HttpPut("UpdateOrder")]
-        public ActionResult UpdatePMCSS(orderVM orderVM)
+        public ActionResult UpdateOrder(orderVM orderVM)
         {
             try
             {
                 ordersRepository.UpdateOrder(orderVM);
+
                 return Ok("Update Order Success");
             }
             catch (Exception)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Insert Server Error");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Update Server Error");
             }
         }
 
         [HttpPost]
-        public IActionResult AddOrder(orderVM newOrder)
+        public ActionResult AddOrder(orderVM newOrder)
         {
             try
             {
                 ordersRepository.AddOrder(newOrder);
+
                 return Ok(); // Return 200 OK if the order is successfully added
             }
             catch (Exception)
             {
-                return StatusCode(500); // Return 500 Internal Server Error if an error occurs
+                return StatusCode(StatusCodes.Status500InternalServerError, "Insert Server Error");
             }
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteOrder(long id)
+        public ActionResult DeleteOrder(long id)
         {
             try
             {
-                    ordersRepository.DeleteOrder(id);
-                    return Ok(); // Return 200 OK if the order is successfully deleted
+                ordersRepository.DeleteOrder(id);
+
+                return Ok(); // Return 200 OK if the order is successfully deleted
             }
             catch (Exception)
             {
-                return StatusCode(500); // Return 500 Internal Server Error if an error occurs
+                return StatusCode(StatusCodes.Status500InternalServerError, "Delete Server Error");
             }
         }
 
-
         private CustomResponse<orderVM> PaginateResponseOrderById(CustomResponse<orderVM> response, int page, int pageSize)
         {
-            // Proses paginasi seperti yang Anda lakukan pada GetAllItem dan GetAllOrder
+            // Proses paginasi seperti yang Anda lakukan pada GetAllOrder
             var dataToPaginate = response.Data;
             int totalItems = dataToPaginate.Count;
             int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
@@ -221,8 +192,5 @@ public ActionResult<CustomResponse<orderVM>> GetAllOrder(int page = 1, int pageS
 
             return response;
         }
-
     }
-
 }
-
