@@ -25,10 +25,12 @@ namespace API.Repositories
             using IDbConnection dbConnection = new SqlConnection(_connectionString);
             dbConnection.Open();
 
-            string query = @"SELECT oi.Item_Id, oi.Order_Id, oi.ID, o.Customer_Id, o.Order_Date
+            string query = @"SELECT oi.Item_Id, oi.Order_Id, oi.ID, o.Customer_Id, o.Order_Date, c.Customer_Email, c.Customer_Phone
                            FROM orders_Items oi
                            INNER JOIN orders o 
-                           ON oi.Order_Id = o.ID";
+                           ON oi.Order_Id = o.ID
+						   INNER JOIN customers c
+						   ON o.Customer_Id = c.ID";
 
             var result = dbConnection.Query<orderVM>(query).ToList();
 
@@ -40,9 +42,12 @@ namespace API.Repositories
             using IDbConnection dbConnection = new SqlConnection(_connectionString);
             dbConnection.Open();
 
-            string query = @"SELECT oi.Item_Id, oi.Order_Id, oi.ID, o.Customer_Id, o.Order_Date
-                             FROM orders_Items oi
-                             INNER JOIN orders o ON oi.Order_Id = o.ID
+            string query = @"SELECT oi.Item_Id, oi.Order_Id, oi.ID, o.Customer_Id, o.Order_Date, c.Customer_Email, c.Customer_Phone
+                           FROM orders_Items oi
+                           INNER JOIN orders o 
+                           ON oi.Order_Id = o.ID
+						   INNER JOIN customers c
+						   ON o.Customer_Id = c.ID
                              WHERE o.ID = @ID";
 
             var result = dbConnection.Query<orderVM>(query, new { ID }).ToList();

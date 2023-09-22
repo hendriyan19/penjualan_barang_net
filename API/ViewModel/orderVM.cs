@@ -10,6 +10,8 @@ namespace API.ViewModel
         public long Item_Id { get; set; }
         public DateTime Order_Date { get; set; }
         public long Customer_Id { get; set; }
+        public string Customer_Phone { get; set; }
+        public string Customer_Email { get; set;}
 
     }
 }
