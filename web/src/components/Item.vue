@@ -18,11 +18,17 @@
                     </form>
                 </div>
                 <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                    <button type="button" id="createProductModalButton" data-modal-target="createProductModal" data-modal-toggle="createProductModal" class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+                    <button type="button" @click="openModalAdd" class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
                         <svg class="h-3.5 w-3.5 mr-2" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                             <path clip-rule="evenodd" fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
                         </svg>
                         Add product
+                    </button>
+                    <button type="button" class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+                        <svg class="h-3.5 w-3.5 mr-2" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path clip-rule="evenodd" fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
+                        </svg>
+                        Deleted Product
                     </button>
                 </div>
             </div>
@@ -42,7 +48,7 @@
                             <td class="px-4 py-3">{{ item.item_Name }}</td>
                             <td class="px-4 py-3">{{ formatPrice(item.item_Price) }}</td>
                             <td class="px-4 py-3 flex items-center justify-end">
-                              <button type="button" class="flex w-full items-center py-2 px-4 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">         
+                              <button type="button" @click="openModalEdit(item.id)" class="flex w-full items-center py-2 px-4 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">         
                                                 Edit
                                 </button>
                                 <button type="button" class="flex w-full items-center py-2 px-4 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">              
@@ -101,6 +107,122 @@
     </div>
 </section>
 
+
+
+<!-- Edit Modal -->
+<div id="editModal" class="fixed inset-0 z-10 flex items-center justify-center overflow-x-hidden overflow-y-auto hidden">
+    <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
+
+    <div class="modal-container bg-white dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 rounded-lg z-50 max-w-lg mx-auto p-4 sm:p-6">
+      <!-- Konten Modal di sini -->
+      <div class="modal-content">
+       
+        <form class="w-full max-w-lg">
+            <div class="flex flex-wrap -mx-3 mb-2">
+    <div class="w-full px-3">
+      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-first-name">
+        Item Name
+      </label>
+      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" 
+      id="input_item_name" type="text">
+    </div>
+  </div>
+  <div class="flex flex-wrap -mx-3 mb-2">
+    <div class="w-full px-3">
+      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-first-name">
+        Price
+      </label>
+      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" 
+      id="input_item_price" type="text">
+    </div>
+  </div>
+  <button @click="updateItem" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+  Update
+</button>
+</form>
+      </div>
+
+      <!-- Tombol Tutup Modal -->
+      <button
+        type="button"
+        @click="closeModalEdit"
+        class="absolute top-0 right-0 m-4 p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none"
+      >
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+
+  <!-- Add Modal -->
+<div id="addModal" class="fixed inset-0 z-10 flex items-center justify-center overflow-x-hidden overflow-y-auto hidden">
+    <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
+
+    <div class="modal-container bg-white dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 rounded-lg z-50 max-w-lg mx-auto p-4 sm:p-6">
+      <!-- Konten Modal di sini -->
+      <div class="modal-content">
+       
+        <form class="w-full max-w-lg">
+  <div class="flex flex-wrap -mx-3 mb-2">
+    <div class="w-full px-3">
+      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-first-name">
+        Item Name
+      </label>
+      <input id="create_item_name" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" type="text" placeholder="Jane">
+    </div>
+  </div>
+  <div class="flex flex-wrap -mx-3 mb-2">
+    <div class="w-full px-3">
+      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-first-name">
+        Price
+      </label>
+      <input id="create_item_price" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" type="text" placeholder="Jane">
+    </div>
+  </div>
+  <button @click="addItem" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+  Add
+</button>
+  
+</form>
+      </div>
+
+      <!-- Tombol Tutup Modal Add-->
+      <button
+        type="button"
+        @click="closeModalAdd"
+        class="absolute top-0 right-0 m-4 p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none"
+      >
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
   </template>
 
 
@@ -113,6 +235,7 @@ import axios from 'axios';
     data() {
       return {
         items: [],
+        editItemId: null,
       };
     },
     mounted() {
@@ -139,7 +262,79 @@ import axios from 'axios';
       }).format(price);
       return formattedPrice;
     },
+    openModalEdit(itemId) {
+        this.editItemId = itemId;
+    axios
+        .get(`https://localhost:5001/API/items/getitembyid/${itemId}`)
+        .then((response) => {
+            const itemData = response.data[0];
+            document.getElementById('input_item_name').value = itemData.item_Name;
+            document.getElementById('input_item_price').value = itemData.item_Price;
+        })
+        .catch((error) => {
+            console.error("Terjadi kesalahan:", error);
+        });
+    document.getElementById('editModal').classList.remove('hidden');
+},
+    closeModalEdit() {
+      // Sembunyikan modal dengan mengubah class "block" menjadi "hidden"
+      document.getElementById('editModal').classList.add('hidden');
     },
+    openModalAdd() {
+      document.getElementById('addModal').classList.remove('hidden');
+    },
+    closeModalAdd() {
+      document.getElementById('addModal').classList.add('hidden');
+    },
+    updateItem() {
+        const itemId = this.editItemId; 
+        const itemName = document.getElementById('input_item_name').value;
+        const itemPrice = document.getElementById('input_item_price').value;
+
+        
+        const requestBody = {
+            id: itemId,
+            item_Name: itemName,
+            item_Price: parseInt(itemPrice),
+        };
+
+        
+        axios
+            .put("https://localhost:5001/API/items/UpdateItem", requestBody)
+            .then((response) => {
+            
+            console.log("Item updated successfully");
+            this.closeModalEdit();
+            this.fetchItems();
+            })
+            .catch((error) => {
+            console.error("Failed to update item:", error);
+            });
+    },
+    addItem() {
+    const itemName = document.getElementById('create_item_name').value;
+    const itemPrice = document.getElementById('create_item_price').value;
+
+    // Membuat objek yang akan dikirim sebagai payload
+    const requestBody = {
+      Item_Name: itemName,
+      Item_Price: parseFloat(itemPrice),
+    };
+
+    axios
+      .post("https://localhost:5001/API/items/AddItem", requestBody)
+      .then((response) => {
+        // Handle respon sukses
+        console.log("Item added successfully");
+        this.closeModalAdd();
+        this.fetchItems();
+      })
+      .catch((error) => {
+        console.error("Gagal menambahkan item:", error);
+      });
+  },
+
+},
   };
   </script>
   
