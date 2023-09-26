@@ -30,7 +30,8 @@ namespace API.Repositories
                            INNER JOIN orders o 
                            ON oi.Order_Id = o.ID
 						   INNER JOIN customers c
-						   ON o.Customer_Id = c.ID";
+						   ON o.Customer_Id = c.ID
+						   where oi.System_Deleted=0";
 
             var result = dbConnection.Query<orderVM>(query).ToList();
 
@@ -48,7 +49,8 @@ namespace API.Repositories
                            ON oi.Order_Id = o.ID
 						   INNER JOIN customers c
 						   ON o.Customer_Id = c.ID
-                             WHERE o.ID = @ID";
+                             WHERE o.ID = @ID 
+                           and oi.System_Deleted=0";
 
             var result = dbConnection.Query<orderVM>(query, new { ID }).ToList();
 
@@ -62,7 +64,7 @@ namespace API.Repositories
 
             string query = @"UPDATE orders
                              SET Order_Date = @Order_Date, Customer_Id = @Customer_Id
-                             WHERE ID = @ID";
+                             WHERE ID = @ID ";
 
             int rowsAffected = dbConnection.Execute(query, updatedOrder);
 
