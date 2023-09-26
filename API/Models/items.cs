@@ -14,6 +14,7 @@ namespace API.Models
 
         [Required]
         public long Item_Price { get; set; }
+        public bool System_Deleted { get; set; }
 
         public virtual ICollection<OrderItem> OrderItems { get; set; }
     }

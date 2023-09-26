@@ -16,5 +16,7 @@ namespace API.Models
         [ForeignKey("Item")]
         public long Item_Id { get; set; }
         public virtual Item Item { get; set; }
+
+        public bool System_Deleted { get; set; }
     }
 }

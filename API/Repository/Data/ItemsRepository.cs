@@ -22,7 +22,8 @@ namespace API.Repositories
             using IDbConnection dbConnection = new SqlConnection(_connectionString);
             dbConnection.Open();
 
-            string query = "SELECT ID, Item_Name, Item_Price FROM items";
+            string query = "SELECT ID, Item_Name, Item_Price, System_Deleted FROM items " +
+                "WHERE System_Deleted=0";
             var result = dbConnection.Query<itemVM>(query).AsList();
 
             return result;
@@ -33,7 +34,8 @@ namespace API.Repositories
             using IDbConnection dbConnection = new SqlConnection(_connectionString);
             dbConnection.Open();
 
-            string query = "SELECT ID, Item_Name, Item_Price FROM items WHERE ID = @ID";
+            string query = "SELECT ID, Item_Name, Item_Price, System_Deleted FROM items " +
+                "WHERE ID = @ID and System_Deleted=0";
             var result = dbConnection.Query<itemVM>(query, new { ID }).AsList();
 
             return result;
@@ -44,7 +46,7 @@ namespace API.Repositories
             using IDbConnection dbConnection = new SqlConnection(_connectionString);
             dbConnection.Open();
 
-            string query = "INSERT INTO items (Item_Name, Item_Price) VALUES (@Item_Name, @Item_Price)";
+            string query = "INSERT INTO items (Item_Name, Item_Price, System_Deleted) VALUES (@Item_Name, @Item_Price, 0)";
             dbConnection.Execute(query, newItem);
         }
 
@@ -53,7 +55,7 @@ namespace API.Repositories
             using IDbConnection dbConnection = new SqlConnection(_connectionString);
             dbConnection.Open();
 
-            string query = "UPDATE items SET Item_Name = @Item_Name, Item_Price = @Item_Price WHERE ID = @ID";
+            string query = "UPDATE items SET Item_Name = 'ASUS TUF Gaming F13', Item_Price = 7240000 WHERE ID = 1 and System_Deleted=0";
             dbConnection.Execute(query, updatedItem);
         }
 

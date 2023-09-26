@@ -12,6 +12,7 @@ namespace API.ViewModel
         public long Customer_Id { get; set; }
         public string Customer_Phone { get; set; }
         public string Customer_Email { get; set;}
+        public bool System_Deleted { get; set; }
 
     }
 }

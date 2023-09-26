@@ -17,6 +17,8 @@ namespace API.Models
         public long Customer_Id { get; set; }
         public virtual Customer Customer { get; set; }
 
+        public bool System_Deleted { get; set; }
+
         public virtual ICollection<OrderItem> OrderItems { get; set; }
     }
 }
