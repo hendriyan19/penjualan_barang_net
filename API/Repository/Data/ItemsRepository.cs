@@ -55,7 +55,7 @@ namespace API.Repositories
             using IDbConnection dbConnection = new SqlConnection(_connectionString);
             dbConnection.Open();
 
-            string query = "UPDATE items SET Item_Name = 'ASUS TUF Gaming F13', Item_Price = 7240000 WHERE ID = 1 and System_Deleted=0";
+            string query = "UPDATE items SET Item_Name = @Item_Name, Item_Price = @Item_Price WHERE ID=@ID and System_Deleted=0";
             dbConnection.Execute(query, updatedItem);
         }
 
@@ -64,7 +64,7 @@ namespace API.Repositories
             using IDbConnection dbConnection = new SqlConnection(_connectionString);
             dbConnection.Open();
 
-            string query = "DELETE FROM items WHERE ID = @ID";
+            string query = "UPDATE items SET system_deleted = 1 WHERE ID = @ID";
             dbConnection.Execute(query, new { ID });
         }
     }

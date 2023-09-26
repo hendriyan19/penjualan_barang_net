@@ -130,7 +130,7 @@ namespace API.Controllers
             }
         }
 
-        [HttpDelete("DeleteItem/{id}")]
+        [HttpPut("DeleteItem/{id}")]
         public async Task<ActionResult> DeleteItem(long id)
         {
             try
