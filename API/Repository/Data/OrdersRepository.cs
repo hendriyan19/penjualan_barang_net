@@ -49,7 +49,7 @@ namespace API.Repositories
                            ON oi.Order_Id = o.ID
 						   INNER JOIN customers c
 						   ON o.Customer_Id = c.ID
-                             WHERE o.ID = @ID 
+                             WHERE oi.ID = @ID 
                            and oi.System_Deleted=0";
 
             var result = dbConnection.Query<orderVM>(query, new { ID }).ToList();
