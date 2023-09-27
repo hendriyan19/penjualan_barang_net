@@ -25,6 +25,61 @@ namespace API.Controllers
             this.itemsRepository = itemsRepository;
         }
 
+
+
+[HttpGet("GetAllDeleted")]
+        public async Task<ActionResult<CustomResponse<itemVM>>> GetAllDeleted(int page = 1, int pageSize = 10)
+        {
+            try
+            {
+                var allItems = itemsRepository.GetAllDeleted();
+
+                // Menghitung total item dan halaman
+                int totalItems = allItems.Count();
+                int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+                // Validasi nomor halaman
+                if (page < 1)
+                    page = 1;
+                if (page > totalPages)
+                    page = totalPages;
+
+                // Mengambil item untuk halaman saat ini
+                var itemsToReturn = allItems
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                // Membuat custom response object dengan informasi pagination
+                var response = new CustomResponse<itemVM>
+                {
+                    Meta = new Meta
+                    {
+                        Code = 200,
+                        Message = "Success",
+                        Pagination = new Pagination
+                        {
+                            Current = page.ToString(),
+                            Next = (page < totalPages) ? (page + 1).ToString() : null,
+                            Prev = (page > 1) ? (page - 1).ToString() : null,
+                            Count = totalItems
+                        }
+                    },
+                    Data = itemsToReturn
+                };
+
+                if (itemsToReturn.Count >= 15)
+                {
+                    response.Meta.Pagination = null;
+                }
+
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Get All Items Server Error");
+            }
+        }
+
         [HttpGet("GetAllItem")]
         public async Task<ActionResult<CustomResponse<itemVM>>> GetAllItem(int page = 1, int pageSize = 10)
         {
@@ -60,7 +115,7 @@ namespace API.Controllers
                             Current = page.ToString(),
                             Next = (page < totalPages) ? (page + 1).ToString() : null,
                             Prev = (page > 1) ? (page - 1).ToString() : null,
-                            Count = itemsToReturn.Count
+                            Count = totalItems
                         }
                     },
                     Data = itemsToReturn
@@ -130,17 +185,31 @@ namespace API.Controllers
             }
         }
 
-        [HttpPut("DeleteItem/{id}")]
-        public async Task<ActionResult> DeleteItem(long id)
+        [HttpPut("DeleteItem")]
+        public async Task<ActionResult> DeleteItem(itemVM deletedItem)
         {
             try
             {
-                itemsRepository.DeleteItem(id);
+                itemsRepository.DeleteItem(deletedItem);
                 return Ok("Delete Item Success");
             }
             catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Delete Server Error");
+            }
+        }
+
+        [HttpPut("RestoreItem")]
+        public async Task<ActionResult> RestoreItem(itemVM restoreItem)
+        {
+            try
+            {
+                itemsRepository.RestoreItem(restoreItem);
+                return Ok("Delete Item Success");
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Restore Server Error");
             }
         }
     }

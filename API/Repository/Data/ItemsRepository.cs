@@ -29,6 +29,18 @@ namespace API.Repositories
             return result;
         }
 
+        public List<itemVM> GetAllDeleted()
+        {
+            using IDbConnection dbConnection = new SqlConnection(_connectionString);
+            dbConnection.Open();
+
+            string query = "SELECT ID, Item_Name, Item_Price, System_Deleted FROM items " +
+                "WHERE System_Deleted=1";
+            var result = dbConnection.Query<itemVM>(query).AsList();
+
+            return result;
+        }
+
         public List<itemVM> GetItemById(long ID)
         {
             using IDbConnection dbConnection = new SqlConnection(_connectionString);
@@ -59,13 +71,21 @@ namespace API.Repositories
             dbConnection.Execute(query, updatedItem);
         }
 
-        public void DeleteItem(long ID)
+        public void DeleteItem(itemVM deletedItem)
         {
             using IDbConnection dbConnection = new SqlConnection(_connectionString);
             dbConnection.Open();
 
-            string query = "UPDATE items SET system_deleted = 1 WHERE ID = @ID";
-            dbConnection.Execute(query, new { ID });
+            string query = "UPDATE items SET System_Deleted = 1 WHERE ID = @ID";
+            dbConnection.Execute(query, deletedItem);
+        }
+        public void RestoreItem(itemVM restoreItem)
+        {
+            using IDbConnection dbConnection = new SqlConnection(_connectionString);
+            dbConnection.Open();
+
+            string query = "UPDATE items SET System_Deleted = 0 WHERE ID = @ID";
+            dbConnection.Execute(query, restoreItem);
         }
     }
 }

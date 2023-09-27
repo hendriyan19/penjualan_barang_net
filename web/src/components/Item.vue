@@ -24,7 +24,7 @@
                         </svg>
                         Add product
                     </button>
-                    <button type="button" class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+                    <button type="button" @click="openModalDeleted" class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
                         <svg class="h-3.5 w-3.5 mr-2" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                             <path clip-rule="evenodd" fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
                         </svg>
@@ -51,7 +51,7 @@
                               <button type="button" @click="openModalEdit(item.id)" class="flex w-full items-center py-2 px-4 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">         
                                                 Edit
                                 </button>
-                                <button type="button" class="flex w-full items-center py-2 px-4 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">              
+                                <button type="button" @click="softDeleteItem(item.id)" class="flex w-full items-center py-2 px-4 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">              
                                                 Delete
                                 </button>
                             </td>
@@ -63,43 +63,60 @@
 
 
             <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4" aria-label="Table navigation">
-                <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
-                    Showing
-                    <span class="font-semibold text-gray-900 dark:text-white">1-10</span>
-                    of
-                    <span class="font-semibold text-gray-900 dark:text-white">1000</span>
-                </span>
+              <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
+              Showing
+              <span class="font-semibold text-gray-900 dark:text-white">{{ getRangeStart() }}-{{ getRangeEnd() }}</span>
+              of
+              <span class="font-semibold text-gray-900 dark:text-white">{{ totalItems }}</span>
+            </span>
                 <ul class="inline-flex items-stretch -space-x-px">
                     <li>
-                        <a href="#" class="flex items-center justify-center h-full py-1.5 px-3 ml-0 text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                            <span class="sr-only">Previous</span>
-                            <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
+                      <a
+                        href="#"
+                        @click.prevent="prevPage"
+                        class="flex items-center justify-center h-full py-1.5 px-3 ml-0 text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                      >
+                        <span class="sr-only">Previous</span>
+                        <svg
+                          class="w-5 h-5"
+                          aria-hidden="true"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                          ></path>
+                        </svg>
+                      </a>
                     </li>
+                    
+                    <li v-for="pageNumber in pageNumbers" :key="pageNumber">
+                    <a
+                      href="#"
+                      @click.prevent="goToPage(pageNumber)"
+                      :class="{ 'text-primary-600 bg-primary-50': page === pageNumber, 'text-gray-500 bg-white': page !== pageNumber }"
+                      class="flex items-center justify-center text-sm py-2 px-3 leading-tight border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                    >
+                      {{ pageNumber }}
+                    </a>
+                  </li>
+
+
                     <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">1</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">2</a>
-                    </li>
-                    <li>
-                        <a href="#" aria-current="page" class="flex items-center justify-center text-sm z-10 py-2 px-3 leading-tight text-primary-600 bg-primary-50 border border-primary-300 hover:bg-primary-100 hover:text-primary-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white">3</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">...</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">100</a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center justify-center h-full py-1.5 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                            <span class="sr-only">Next</span>
-                            <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
+                      <a
+                      href="#"
+                      @click.prevent="nextPage"
+                      class="flex items-center justify-center h-full py-1.5 px-3 ml-0 text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                    >
+                      <span class="sr-only">Next</span>
+                      <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                                </svg>
+                    </a>
                     </li>
                 </ul>
             </nav>
@@ -223,6 +240,80 @@
     </div>
   </div>
 
+
+  <!-- Deleted Modal -->
+<div id="deletedModal" class="fixed inset-0 z-10 flex items-center justify-center overflow-x-hidden overflow-y-auto hidden">
+    <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
+
+    <div class="modal-container bg-white dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 rounded-lg z-50 max-w-lg mx-auto p-4 sm:p-6">
+      <!-- Konten Modal di sini -->
+      <div class="modal-content">
+       <!-- start modal content -->
+       <div class="flex flex-col">
+  <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
+    <div class="inline-block min-w-full py-2 sm:px-6 lg:px-8">
+      <div class="overflow-hidden">
+        <!-- deleteditems -->
+        <!-- <tr v-for="(item,index) in items" :key="item.id" -->
+        <table class="min-w-full text-left text-sm font-light">
+          <thead class="border-b font-medium dark:border-neutral-500">
+            <tr >
+              <th scope="col" class="px-6 py-4">No</th>
+              <th scope="col" class="px-6 py-4">Item Name</th>
+              <th scope="col" class="px-6 py-4">Item Price</th>
+              <th scope="col" class="px-6 py-4">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item,index) in deleteditems" :key="item.id" class="border-b dark:border-neutral-500">
+              <td class="whitespace-nowrap px-6 py-4 font-medium">{{ index+1 }}</td>
+              <td class="whitespace-nowrap px-6 py-4">{{ item.item_Name }}</td>
+              <td class="whitespace-nowrap px-6 py-4">{{ item.item_Price }}</td>
+              <td class="whitespace-nowrap px-6 py-4">
+
+                
+                <button @click="restoreItem(item.id)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+  Restore
+</button>
+                
+
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+       <!-- end modal content -->
+        
+       
+      </div>
+
+      <!-- Tombol Tutup Modal Deleted-->
+      <button
+        type="button"
+        @click="closeModalDeleted"
+        class="absolute top-0 right-0 m-4 p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none"
+      >
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
   </template>
 
 
@@ -235,19 +326,46 @@ import axios from 'axios';
     data() {
       return {
         items: [],
+        deleteditems:[],
         editItemId: null,
+        page: 1,
+        totalPage: 1,
+        totalItems:1,
       };
     },
     mounted() {
       this.fetchItems();
+      this.DeletedItems();
+    },
+    computed: {
+    pageNumbers() {
+        const pages = [];
+        for (let i = 1; i <= this.totalPage; i++) {
+          pages.push(i);
+        }
+        return pages;
+      },
     },
     methods: {
       fetchItems() {
-        // Mengambil data dari API menggunakan Axios
+        // Update the API URL to include the page number
         axios
-          .get("https://localhost:5001/API/items/getallitem")
+          .get(`https://localhost:5001/API/items/getallitem?page=${this.page}&pageSize=10`)
           .then((response) => {
             this.items = response.data.data;
+            this.totalPage = Math.ceil(response.data.meta.pagination.count/10); 
+            this.totalItems = response.data.meta.pagination.count;
+          })
+          .catch((error) => {
+            console.error("Terjadi kesalahan:", error);
+          });
+      },
+      DeletedItems() {
+        // Mengambil data dari API menggunakan Axios
+        axios
+          .get("https://localhost:5001/API/items/getalldeleted")
+          .then((response) => {
+            this.deleteditems = response.data.data;
           })
           .catch((error) => {
             console.error("Terjadi kesalahan:", error);
@@ -276,6 +394,13 @@ import axios from 'axios';
         });
     document.getElementById('editModal').classList.remove('hidden');
 },
+    closeModalDeleted() {
+      // Sembunyikan modal dengan mengubah class "block" menjadi "hidden"
+      document.getElementById('deletedModal').classList.add('hidden');
+    },
+    openModalDeleted() {
+      document.getElementById('deletedModal').classList.remove('hidden');
+    },
     closeModalEdit() {
       // Sembunyikan modal dengan mengubah class "block" menjadi "hidden"
       document.getElementById('editModal').classList.add('hidden');
@@ -333,7 +458,71 @@ import axios from 'axios';
         console.error("Gagal menambahkan item:", error);
       });
   },
+  softDeleteItem(itemId) {
 
+    const item_Id = itemId;
+
+    const requestBody = {
+      id: item_Id
+    };
+        axios
+            .put("https://localhost:5001/API/items/DeleteItem", requestBody)
+            .then((response) => {
+                console.log("Item soft deleted successfully");
+                
+                this.fetchItems(); // Mengambil data lagi setelah item dihapus
+                this.DeletedItems();
+            })
+            .catch((error) => {
+              console.log(requestBody);
+                console.error("Failed to soft delete item:", error);
+            });
+    },
+    restoreItem(itemId) {
+
+      const item_Id = itemId;
+
+      const requestBody = {
+        id: item_Id
+      };
+          axios
+              .put("https://localhost:5001/API/items/RestoreItem", requestBody)
+              .then((response) => {
+                  console.log("Item soft deleted successfully");
+                  
+                  this.fetchItems(); // Mengambil data lagi setelah item dihapus
+                  this.DeletedItems();
+              })
+              .catch((error) => {
+                console.log(requestBody);
+                  console.error("Failed to soft delete item:", error);
+              });
+      },
+      nextPage() {
+        this.page++; 
+        this.fetchItems(); 
+      },
+      prevPage() {
+      if (this.page > 1) {
+        this.page--; 
+        this.fetchItems(); 
+      }
+      },
+      goToPage(pageNumber) {
+      if (pageNumber >= 1 && pageNumber <= this.totalPage) {
+        this.page = pageNumber; 
+        this.fetchItems(); 
+      }
+    },
+    getRangeStart() {
+    return (this.page - 1) * 10 + 1; 
+    },
+    getRangeEnd() {
+      const end = this.page * 10; 
+      return end > this.totalItems ? this.totalItems : end;
+    },
+  
+  
 },
   };
   </script>
