@@ -25,13 +25,51 @@ namespace API.Repositories
             using IDbConnection dbConnection = new SqlConnection(_connectionString);
             dbConnection.Open();
 
-            string query = @"SELECT oi.Item_Id, oi.Order_Id, oi.ID, o.Customer_Id, o.Order_Date, c.Customer_Email, c.Customer_Phone
+            string query = @"SELECT oi.Item_Id, oi.Order_Id, oi.ID, o.Customer_Id, i.Item_Name, o.Order_Date, c.Customer_Email, c.Customer_Phone
                            FROM orders_Items oi
                            INNER JOIN orders o 
                            ON oi.Order_Id = o.ID
 						   INNER JOIN customers c
 						   ON o.Customer_Id = c.ID
+						   INNER JOIN items i
+						   on oi.Item_Id = i.ID
 						   where oi.System_Deleted=0";
+
+            var result = dbConnection.Query<orderVM>(query).ToList();
+
+            return result;
+        }
+
+        public List<orderVM> GetAllCustomer()
+        {
+            using IDbConnection dbConnection = new SqlConnection(_connectionString);
+            dbConnection.Open();
+
+            string query = @"Select * FROM customers";
+
+            var result = dbConnection.Query<orderVM>(query).ToList();
+
+            return result;
+        }
+
+        public List<orderVM> GetAllDate()
+        {
+            using IDbConnection dbConnection = new SqlConnection(_connectionString);
+            dbConnection.Open();
+
+            string query = @"Select * FROM orders";
+
+            var result = dbConnection.Query<orderVM>(query).ToList();
+
+            return result;
+        }
+
+        public List<orderVM> GetAllItem()
+        {
+            using IDbConnection dbConnection = new SqlConnection(_connectionString);
+            dbConnection.Open();
+
+            string query = @"Select * FROM items where System_Deleted=0";
 
             var result = dbConnection.Query<orderVM>(query).ToList();
 
@@ -43,13 +81,15 @@ namespace API.Repositories
             using IDbConnection dbConnection = new SqlConnection(_connectionString);
             dbConnection.Open();
 
-            string query = @"SELECT oi.Item_Id, oi.Order_Id, oi.ID, o.Customer_Id, o.Order_Date, c.Customer_Email, c.Customer_Phone
+            string query = @"SELECT oi.Item_Id, oi.Order_Id, oi.ID, o.Customer_Id, i.Item_Name, o.Order_Date, c.Customer_Email, c.Customer_Phone
                            FROM orders_Items oi
                            INNER JOIN orders o 
                            ON oi.Order_Id = o.ID
 						   INNER JOIN customers c
 						   ON o.Customer_Id = c.ID
-                             WHERE oi.ID = @ID 
+						   INNER JOIN items i
+						   on oi.Item_Id = i.id
+                             WHERE oi.ID = @ID
                            and oi.System_Deleted=0";
 
             var result = dbConnection.Query<orderVM>(query, new { ID }).ToList();
@@ -62,9 +102,8 @@ namespace API.Repositories
             using IDbConnection dbConnection = new SqlConnection(_connectionString);
             dbConnection.Open();
 
-            string query = @"UPDATE orders
-                             SET Order_Date = @Order_Date, Customer_Id = @Customer_Id
-                             WHERE ID = @ID ";
+            string query = @"UPDATE orders_Items
+                             SET Item_Id = @Item_Id WHERE ID = @ID ";
 
             int rowsAffected = dbConnection.Execute(query, updatedOrder);
 

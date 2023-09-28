@@ -22,7 +22,7 @@
                       <svg class="h-3.5 w-3.5 mr-2" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                           <path clip-rule="evenodd" fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
                       </svg>
-                      Add product
+                      Add Order
                   </button>
               </div>
           </div>
@@ -31,8 +31,7 @@
                   <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                       <tr>
                           <th scope="col" class="px-4 py-4">No</th>
-                          <th scope="col" class="px-4 py-3">Order ID</th>
-                          <th scope="col" class="px-4 py-3">Item ID</th>
+                          <th scope="col" class="px-4 py-3">Item Name</th>
                           <th scope="col" class="px-4 py-3">Tanggal Order</th>
                           <th scope="col" class="px-4 py-3">Customer Email</th>
                           <th scope="col" class="px-4 py-3">Customer Phone</th>
@@ -42,14 +41,13 @@
                   <tbody>
                       <tr v-for="(order,index) in orders" :key="order.id" class="border-b dark:border-gray-700">
                           <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ index+1 }}</th>
-                          <td class="px-4 py-3">{{ order.order_Id }}</td>
-                          <td class="px-4 py-3">{{ order.item_Id }}</td>
+                          <td class="px-4 py-3">{{ order.item_Name }}</td>
                           <td class="px-4 py-3">{{ formatDate(order.order_Date) }}</td>
                           <td class="px-4 py-3">{{ order.customer_Email }}</td>
                           <td class="px-4 py-3">{{ order.customer_Phone }}</td>
                           <td class="px-4 py-3 flex items-center justify-end">
                             
-                            <button type="button" @click="openModalEdit" class="flex w-full items-center py-2 px-4 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+                            <button type="button" @click="openModalEdit(order.id)" class="flex w-full items-center py-2 px-4 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
                             Edit
                             </button>
                               <button type="button" class="flex w-full items-center py-2 px-4 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">              
@@ -119,58 +117,46 @@
        
         <form class="w-full max-w-lg">
   <div class="flex flex-wrap -mx-3 mb-6">
-    <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-first-name">
-        First Name
-      </label>
-      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" placeholder="Jane">
-      <p class="text-red-500 text-xs italic">Please fill out this field.</p>
-    </div>
-    <div class="w-full md:w-1/2 px-3">
+    
+    <div class="w-full px-3">
       <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-last-name">
-        Last Name
+        Item Name
       </label>
-      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-last-name" type="text" placeholder="Doe">
+      <!-- <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="item_name_edit" type="text"> -->
+      <select class="p-2 border rounded-lg" v-model="selectedItemId">
+        <option v-for="item in items" :key="item.id" :value="item.id">
+          {{ item.item_Name }}
+        </option>
+      </select>
     </div>
   </div>
   <div class="flex flex-wrap -mx-3 mb-6">
+    
     <div class="w-full px-3">
-      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-password">
-        Password
+      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-last-name">
+        Order Date
       </label>
-      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-password" type="password" placeholder="******************">
-      <p class="text-gray-600 text-xs italic">Make it as long and as crazy as you'd like</p>
+      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="order_date_edit" type="text" disabled>
     </div>
   </div>
   <div class="flex flex-wrap -mx-3 mb-2">
-    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-city">
-        City
-      </label>
-      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-city" type="text" placeholder="Albuquerque">
-    </div>
-    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
-        State
-      </label>
-      <div class="relative">
-        <select class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state">
-          <option>New Mexico</option>
-          <option>Missouri</option>
-          <option>Texas</option>
-        </select>
-        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-          <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-        </div>
-      </div>
-    </div>
-    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+    
+    <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
       <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-zip">
-        Zip
+        Customer Email
       </label>
-      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-zip" type="text" placeholder="90210">
+      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="customer_email_edit" type="text" disabled>
+    </div>
+    <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-zip">
+        Customer Phone
+      </label>
+      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="customer_phone_edit" type="text" disabled>
     </div>
   </div>
+  <button @click="updateOrder" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+  Update
+</button>
 </form>
       </div>
 
@@ -297,10 +283,14 @@ export default {
   data() {
     return {
       orders: [],
+      items:[],
+      selectedItemId:null,
+      orderId:null,
     };
   },
   mounted() {
     this.fetchOrders();
+    this.fetchItems();
   },
   methods: {
     fetchOrders() {
@@ -314,14 +304,63 @@ export default {
           console.error("Terjadi kesalahan:", error);
         });
     },
+    fetchItems(){
+      axios
+        .get("https://localhost:5001/API/orders/getallitem")
+        .then((response) => {
+          this.items= response.data;
+        })
+        .catch((error) => {
+          console.error("Terjadi kesalahan:", error);
+        });
+    },
     formatDate(dateString) {
       // Memformat tanggal ke dalam "YYYY-MM-DD"
       const date = new Date(dateString);
       return date.toISOString().split('T')[0];
     },
-    openModalEdit() {
-      // Tampilkan modal dengan mengubah class "hidden" menjadi "block"
-      document.getElementById('editModal').classList.remove('hidden');
+    openModalEdit(itemId) {
+        //this.editItemId = itemId;
+    axios
+        .get(`https://localhost:5001/API/orders/getorderbyorderid/${itemId}`)
+        .then((response) => {
+            const orderData = response.data.data[0];
+            const selectedItem = this.items.find(item => item.item_Name === orderData.item_Name);
+                if (selectedItem) {
+                    this.selectedItemId = selectedItem.id;
+                }
+            this.orderId = orderData.id
+            const date = this.formatDate(orderData.order_Date);
+            // document.getElementById('item_name_edit').value = orderData.item_Name;
+            document.getElementById('order_date_edit').value = date;
+            document.getElementById('customer_email_edit').value = orderData.customer_Email;
+            document.getElementById('customer_phone_edit').value = orderData.customer_Phone;
+        })
+        .catch((error) => {
+            console.error("Terjadi kesalahan:", error);
+        });
+    document.getElementById('editModal').classList.remove('hidden');
+    },
+    updateOrder() {
+        const itemId = this.selectedItemId; 
+        const requestBody = {
+        item_Id:itemId,
+        id:this.orderId
+        };
+
+        
+        axios
+            .put("https://localhost:5001/API/orders/UpdateOrder", requestBody)
+            .then((response) => {
+            
+            console.log("Item updated successfully");
+            this.closeModalEdit();
+            this.fetchOrders();
+            this.fetchItems();
+            })
+            .catch((error) => {
+            console.error("Failed to update item:", error);
+            });
     },
     closeModalEdit() {
       // Sembunyikan modal dengan mengubah class "block" menjadi "hidden"

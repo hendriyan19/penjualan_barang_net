@@ -56,6 +56,78 @@ namespace API.Controllers
             }
         }
 
+        [HttpGet("GetAllCustomer")]
+        public ActionResult<List<orderVM>> GetAllCustomer()
+        {
+            try
+            {
+                var allCustomer = ordersRepository.GetAllCustomer();
+
+                if (allCustomer != null && allCustomer.Any())
+                {
+                    return Ok(allCustomer); // Menggunakan kode status 200 OK untuk respons berhasil
+                }
+                else
+                {
+                    return NoContent(); // Menggunakan kode status 204 No Content jika data tidak ada
+                }
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Terjadi kesalahan server saat mengambil data pelanggan"); // Menggunakan kode status 500 untuk kesalahan server
+            }
+        }
+
+
+
+
+        [HttpGet("GetAllDate")]
+        public ActionResult<List<orderVM>> GetAllDate()
+        {
+            try
+            {
+                var allDate = ordersRepository.GetAllDate();
+
+                if (allDate != null && allDate.Any())
+                {
+                    return Ok(allDate); // Menggunakan kode status 200 OK untuk respons berhasil
+                }
+                else
+                {
+                    return NoContent(); // Menggunakan kode status 204 No Content jika data tidak ada
+                }
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Terjadi kesalahan server saat mengambil data pelanggan"); // Menggunakan kode status 500 untuk kesalahan server
+            }
+        }
+
+
+        [HttpGet("GetAllItem")]
+        public ActionResult<List<orderVM>> GetAllItem()
+        {
+            try
+            {
+                var allItem = ordersRepository.GetAllItem();
+
+                if (allItem != null && allItem.Any())
+                {
+                    return Ok(allItem); 
+                }
+                else
+                {
+                    return NoContent(); 
+                }
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Terjadi kesalahan server saat mengambil data pelanggan"); // Menggunakan kode status 500 untuk kesalahan server
+            }
+        }
+
+
+
         [HttpGet("GetAllOrder")]
         public ActionResult<CustomResponse<orderVM>> GetAllOrder(int page = 1, int pageSize = 10)
         {

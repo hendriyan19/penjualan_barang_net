@@ -8,6 +8,7 @@ namespace API.ViewModel
         public long ID { get; set; }
         public long Order_Id { get; set; }
         public long Item_Id { get; set; }
+        public string Item_Name { get; set; }
         public DateTime Order_Date { get; set; }
         public long Customer_Id { get; set; }
         public string Customer_Phone { get; set; }
