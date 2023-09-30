@@ -220,7 +220,55 @@ namespace API.Controllers
             }
         }
     
+        [HttpPut("DeleteItem")]
+        public async Task<ActionResult> DeleteItem(orderVM deletedItem)
+        {
+            try
+            {
+                ordersRepository.DeleteItem(deletedItem);
+                return Ok("Delete Item Success");
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Delete Server Error");
+            }
+        }
 
+        [HttpPut("RestoreItem")]
+        public async Task<ActionResult> RestoreItem(orderVM restoreItem)
+        {
+            try
+            {
+                ordersRepository.RestoreItem(restoreItem);
+                return Ok("Delete Item Success");
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Restore Server Error");
+            }
+        }
+
+        [HttpGet("GetAllDeleted")]
+        public ActionResult<List<orderVM>> GetAllDeleted()
+        {
+            try
+            {
+                var allIDeleted = ordersRepository.GetAllDeleted();
+
+                if (allIDeleted != null && allIDeleted.Any())
+                {
+                    return Ok(allIDeleted); 
+                }
+                else
+                {
+                    return NoContent(); 
+                }
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Terjadi kesalahan server saat mengambil data pelanggan"); // Menggunakan kode status 500 untuk kesalahan server
+            }
+        }
         //[HttpPost("AddOrder")]
         //public ActionResult AddOrder(orderVM newOrder)
         //{

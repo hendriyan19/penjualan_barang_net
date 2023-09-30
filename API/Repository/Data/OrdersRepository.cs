@@ -146,6 +146,41 @@ namespace API.Repositories
             }
         }
 
+        public List<orderVM> GetAllDeleted()
+        {
+            using IDbConnection dbConnection = new SqlConnection(_connectionString);
+            dbConnection.Open();
+
+            string query = @"SELECT oi.Item_Id, oi.Order_Id, oi.ID, o.Customer_Id, i.Item_Name, o.Order_Date, c.Customer_Email, c.Customer_Phone
+                           FROM orders_Items oi
+                           INNER JOIN orders o 
+                           ON oi.Order_Id = o.ID
+						   INNER JOIN customers c
+						   ON o.Customer_Id = c.ID
+						   INNER JOIN items i
+						   on oi.Item_Id = i.ID
+						   where oi.System_Deleted=1";
+            var result = dbConnection.Query<orderVM>(query).AsList();
+
+            return result;
+        }
+
+        public void DeleteItem(orderVM deletedOrder)
+        {
+            using IDbConnection dbConnection = new SqlConnection(_connectionString);
+            dbConnection.Open();
+
+            string query = "UPDATE orders_Items SET System_Deleted = 1 WHERE ID = @ID";
+            dbConnection.Execute(query, deletedOrder);
+        }
+        public void RestoreItem(orderVM deletedOrder)
+        {
+            using IDbConnection dbConnection = new SqlConnection(_connectionString);
+            dbConnection.Open();
+
+            string query = "UPDATE orders_Items SET System_Deleted = 0 WHERE ID = @ID";
+            dbConnection.Execute(query, deletedOrder);
+        }
 
         // public bool AddOrderItems(long Order_Id, long Item_id)
         // {

@@ -24,6 +24,12 @@
                       </svg>
                       Add Order
                   </button>
+                  <button type="button" @click="openModalDeleted" class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+                        <svg class="h-3.5 w-3.5 mr-2" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path clip-rule="evenodd" fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
+                        </svg>
+                        Deleted Order
+                    </button>
               </div>
           </div>
           <div class="overflow-x-auto">
@@ -50,7 +56,7 @@
                             <button type="button" @click="openModalEdit(order.id)" class="flex w-full items-center py-2 px-4 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
                             Edit
                             </button>
-                              <button type="button" class="flex w-full items-center py-2 px-4 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">              
+                              <button @click="softDeleteItem(order.id)" type="button" class="flex w-full items-center py-2 px-4 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">              
                                               Delete
                               </button>
                           </td>
@@ -272,6 +278,85 @@
     </div>
   </div>
   
+
+
+<!-- Deleted Modal -->
+<div id="deletedModal" class="fixed inset-0 z-10 flex items-center justify-center overflow-x-hidden overflow-y-auto hidden">
+    <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
+
+    <div class="modal-container bg-white dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 rounded-lg z-50 max-w-lg mx-auto p-4 sm:p-6">
+      <!-- Konten Modal di sini -->
+      <div class="modal-content">
+       <!-- start modal content -->
+       <div class="flex flex-col">
+  <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
+    <div class="inline-block min-w-full py-2 sm:px-6 lg:px-8">
+      <div class="overflow-hidden">
+        <!-- deleteditems -->
+        <!-- <tr v-for="(item,index) in items" :key="item.id" -->
+        <table class="min-w-full text-left text-sm font-light">
+          <thead class="border-b font-medium dark:border-neutral-500">
+            <tr >
+              <th scope="col" class="px-6 py-4">No</th>
+              <th scope="col" class="px-6 py-4">Item Name</th>
+              <th scope="col" class="px-6 py-4">Order Date</th>
+              <th scope="col" class="px-6 py-4">Customer Email</th>
+              <th scope="col" class="px-6 py-4">Customer Phone</th>
+              <th scope="col" class="px-6 py-4">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item,index) in deletedOrders" :key="item.id" class="border-b dark:border-neutral-500">
+              <td class="whitespace-nowrap px-6 py-4 font-medium">{{ index+1 }}</td>
+              <td class="whitespace-nowrap px-6 py-4">{{ item.item_Name }}</td>
+              <td class="whitespace-nowrap px-6 py-4">{{ item.order_Date }}</td>
+              <td class="whitespace-nowrap px-6 py-4">{{ item.customer_Email }}</td>
+              <td class="whitespace-nowrap px-6 py-4">{{ item.customer_Phone }}</td>
+              <td class="whitespace-nowrap px-6 py-4">
+
+                
+                <button @click="restoreOrder(item.id)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Restore
+              </button>
+                
+
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+       <!-- end modal content -->
+        
+       
+      </div>
+
+      <!-- Tombol Tutup Modal Deleted-->
+      <button
+        type="button"
+        @click="closeModalDeleted"
+        class="absolute top-0 right-0 m-4 p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none"
+      >
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+  
 </template>
 
 <script>
@@ -288,6 +373,7 @@ export default {
       orderId:null,
       selectedCustomerId:null,
       selectedCustomerPhone:null,
+      deletedOrders:[],
     };
   },
   mounted() {
@@ -295,6 +381,7 @@ export default {
     this.fetchItems();
     this.fetchDates();
     this.fetchCustomers();
+    this.DeletedItems();
   },
   watch:{
     selectedCustomerId(newVal){
@@ -416,6 +503,57 @@ export default {
         console.error("Gagal menambahkan item:", error);
       });
   },
+  DeletedItems() {
+        // Mengambil data dari API menggunakan Axios
+        axios
+          .get("https://localhost:5001/API/orders/getalldeleted")
+          .then((response) => {
+            this.deletedOrders = response.data;
+          })
+          .catch((error) => {
+            console.error("Terjadi kesalahan:", error);
+          });
+      },
+      softDeleteItem(orderId) {
+
+        const order_Id = orderId;
+
+        const requestBody = {
+          id: order_Id
+        };
+            axios
+                .put("https://localhost:5001/API/orders/DeleteItem", requestBody)
+                .then((response) => {
+                    console.log("Item soft deleted successfully");
+                    
+                    this.fetchOrders(); // Mengambil data lagi setelah item dihapus
+                    this.DeletedItems();
+                })
+                .catch((error) => {
+                  console.log(requestBody);
+                    console.error("Failed to soft delete item:", error);
+                });
+        },
+ restoreOrder(orderId) {
+
+      const order_Id = orderId;
+
+      const requestBody = {
+        id: order_Id
+      };
+          axios
+              .put("https://localhost:5001/API/orders/RestoreItem", requestBody)
+              .then((response) => {
+                  console.log("Item soft deleted successfully");
+                  
+                  this.fetchOrders(); // Mengambil data lagi setelah item dihapus
+                    this.DeletedItems();
+              })
+              .catch((error) => {
+                console.log(requestBody);
+                  console.error("Failed to soft delete item:", error);
+              });
+      },
     closeModalEdit() {
       // Sembunyikan modal dengan mengubah class "block" menjadi "hidden"
       document.getElementById('editModal').classList.add('hidden');
@@ -425,6 +563,13 @@ export default {
     },
     closeModalAdd() {
       document.getElementById('addModal').classList.add('hidden');
+    },
+    closeModalDeleted() {
+      // Sembunyikan modal dengan mengubah class "block" menjadi "hidden"
+      document.getElementById('deletedModal').classList.add('hidden');
+    },
+    openModalDeleted() {
+      document.getElementById('deletedModal').classList.remove('hidden');
     },
   },
 };
