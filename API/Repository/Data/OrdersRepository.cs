@@ -122,15 +122,21 @@ namespace API.Repositories
             return rowsAffected > 0;
         }
 
-        public bool AddOrder(orderVM newOrder)
+        public bool AddOrderItem(DateTime Order_Date, long Customer_Id, long Item_id)
         {
             try
             {
                 using IDbConnection dbConnection = new SqlConnection(_connectionString);
                 dbConnection.Open();
 
-                string insertOrderItemQuery = "INSERT INTO orders_Items (Item_Id, Order_Id) VALUES (@Item_Id, @Order_Id)";
-                dbConnection.Execute(insertOrderItemQuery, new { newOrder.Item_Id, newOrder.Order_Id });
+                // Operasi INSERT pertama
+                string insertOrderItemQuery = "INSERT INTO orders (Order_Date, Customer_Id) VALUES (@Order_Date, @Customer_Id); SELECT SCOPE_IDENTITY()";
+                long Order_Id = dbConnection.ExecuteScalar<long>(insertOrderItemQuery, new { Order_Date, Customer_Id });
+                bool System_Deleted = false;
+
+                // Operasi INSERT kedua dengan Order_Id yang telah didapatkan
+                string insertOrderItemQuery2 = "INSERT INTO orders_Items (Item_Id, Order_Id, System_Deleted) VALUES (@Item_Id, @Order_Id, @System_Deleted)";
+                dbConnection.Execute(insertOrderItemQuery2, new { Item_id, Order_Id, System_Deleted });
 
                 return true;
             }
@@ -139,5 +145,24 @@ namespace API.Repositories
                 return false;
             }
         }
+
+
+        // public bool AddOrderItems(long Order_Id, long Item_id)
+        // {
+        //     try
+        //     {
+        //         using IDbConnection dbConnection = new SqlConnection(_connectionString);
+        //         dbConnection.Open();
+
+        //         string insertOrderItemQuery = "INSERT INTO orders_Items (Item_Id, Order_Id) VALUES (@Item_Id, @Order_Id)";
+        //         dbConnection.Execute(insertOrderItemQuery, new { Item_id, Order_Id });
+
+        //         return true;
+        //     }
+        //     catch (Exception)
+        //     {
+        //         return false;
+        //     }
+        // }
     }
 }

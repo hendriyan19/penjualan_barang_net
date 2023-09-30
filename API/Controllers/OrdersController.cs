@@ -196,20 +196,45 @@ namespace API.Controllers
             }
         }
 
+
         [HttpPost]
-        public ActionResult AddOrder(orderVM newOrder)
+        [Route("AddOrder")]
+        public IActionResult AddOrderItem([FromBody] addOrderVM request)
         {
             try
             {
-                ordersRepository.AddOrder(newOrder);
+                bool success = ordersRepository.AddOrderItem(request.Order_Date, request.Customer_Id, request.Item_Id);
 
-                return Ok(); // Return 200 OK if the order is successfully added
+                if (success)
+                {
+                    return Ok("Order item added successfully.");
+                }
+                else
+                {
+                    return BadRequest("Failed to add order item.");
+                }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Insert Server Error");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+    
+
+        //[HttpPost("AddOrder")]
+        //public ActionResult AddOrder(orderVM newOrder)
+        //{
+        //    try
+        //    {
+        //        ordersRepository.AddOrder(newOrder);
+
+        //        return Ok(); // Return 200 OK if the order is successfully added
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return StatusCode(StatusCodes.Status500InternalServerError, "Insert Server Error");
+        //    }
+        //}
 
         [HttpDelete("{id}")]
         public ActionResult DeleteOrder(long id)

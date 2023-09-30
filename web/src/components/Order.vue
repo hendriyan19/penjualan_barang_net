@@ -195,58 +195,56 @@
        
         <form class="w-full max-w-lg">
   <div class="flex flex-wrap -mx-3 mb-6">
-    <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-first-name">
-        First Name
-      </label>
-      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" placeholder="Jane">
-      <p class="text-red-500 text-xs italic">Please fill out this field.</p>
-    </div>
-    <div class="w-full md:w-1/2 px-3">
+    
+    <div class="w-full px-3">
       <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-last-name">
-        Last Name
+        Item Name
       </label>
-      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-last-name" type="text" placeholder="Doe">
+      <!-- <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="item_name_edit" type="text"> -->
+      <select class="p-2 border rounded-lg" v-model="selectedItemId">
+        <option v-for="item in items" :key="item.id" :value="item.id">
+          {{ item.item_Name }}
+        </option>
+      </select>
     </div>
   </div>
   <div class="flex flex-wrap -mx-3 mb-6">
+    
     <div class="w-full px-3">
-      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-password">
-        Password
+      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-last-name">
+        Order Date
       </label>
-      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-password" type="password" placeholder="******************">
-      <p class="text-gray-600 text-xs italic">Make it as long and as crazy as you'd like</p>
+      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="order_date_add" type="date" placeholder="YYYY-MM-DD">
     </div>
   </div>
   <div class="flex flex-wrap -mx-3 mb-2">
-    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-city">
-        City
+    
+    <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-last-name">
+        Customer Email
       </label>
-      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-city" type="text" placeholder="Albuquerque">
+      <!-- <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="item_name_edit" type="text"> -->
+      <select class="p-2 border rounded-lg" v-model="selectedCustomerId">
+        <option v-for="item in customers" :key="item.id" :value="item.id">
+          {{ item.customer_Email }}
+        </option>
+      </select>
     </div>
-    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
-        State
+    <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-last-name">
+        Customer Phone
       </label>
-      <div class="relative">
-        <select class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state">
-          <option>New Mexico</option>
-          <option>Missouri</option>
-          <option>Texas</option>
-        </select>
-        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-          <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-        </div>
-      </div>
-    </div>
-    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-zip">
-        Zip
-      </label>
-      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-zip" type="text" placeholder="90210">
+      <!-- <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="item_name_edit" type="text"> -->
+      <select class="p-2 border rounded-lg" v-model="selectedCustomerPhone">
+        <option v-for="item in customers" :key="item.id" :value="item.id">
+          {{ item.customer_Phone }}
+        </option>
+      </select>
     </div>
   </div>
+  <button @click="addOrder" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+  Addd
+</button>
 </form>
       </div>
 
@@ -284,13 +282,31 @@ export default {
     return {
       orders: [],
       items:[],
+      customers:[],
+      dates:[],
       selectedItemId:null,
       orderId:null,
+      selectedCustomerId:null,
+      selectedCustomerPhone:null,
     };
   },
   mounted() {
     this.fetchOrders();
     this.fetchItems();
+    this.fetchDates();
+    this.fetchCustomers();
+  },
+  watch:{
+    selectedCustomerId(newVal){
+      
+      this.selectedCustomerPhone=newVal;
+      
+    },
+    selectedCustomerPhone(newVal){
+      
+      this.selectedCustomerId=newVal;
+      
+    }
   },
   methods: {
     fetchOrders() {
@@ -309,6 +325,26 @@ export default {
         .get("https://localhost:5001/API/orders/getallitem")
         .then((response) => {
           this.items= response.data;
+        })
+        .catch((error) => {
+          console.error("Terjadi kesalahan:", error);
+        });
+    },
+    fetchDates(){
+      axios
+        .get("https://localhost:5001/API/orders/getallDate")
+        .then((response) => {
+          this.dates= response.data;
+        })
+        .catch((error) => {
+          console.error("Terjadi kesalahan:", error);
+        });
+    },
+    fetchCustomers(){
+      axios
+        .get("https://localhost:5001/API/orders/getallcustomer")
+        .then((response) => {
+          this.customers= response.data;
         })
         .catch((error) => {
           console.error("Terjadi kesalahan:", error);
@@ -347,8 +383,6 @@ export default {
         item_Id:itemId,
         id:this.orderId
         };
-
-        
         axios
             .put("https://localhost:5001/API/orders/UpdateOrder", requestBody)
             .then((response) => {
@@ -362,6 +396,26 @@ export default {
             console.error("Failed to update item:", error);
             });
     },
+    addOrder() {
+    const orderDate = document.getElementById('order_date_add').value;
+
+    const requestBody = {
+      order_Date: orderDate,
+      customer_Id: this.selectedCustomerId,
+      item_Id: this.selectedItemId
+    };
+    axios
+      .post("https://localhost:5001/API/orders/AddOrder", requestBody)
+      .then((response) => {
+        // Handle respon sukses
+        console.log("Item added successfully");
+        this.closeModalAdd();
+        this.fetchItems();
+      })
+      .catch((error) => {
+        console.error("Gagal menambahkan item:", error);
+      });
+  },
     closeModalEdit() {
       // Sembunyikan modal dengan mengubah class "block" menjadi "hidden"
       document.getElementById('editModal').classList.add('hidden');
