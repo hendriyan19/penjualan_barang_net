@@ -163,7 +163,7 @@ namespace API.Controllers
                             Current = page.ToString(),
                             Next = (page < totalPages) ? (page + 1).ToString() : null,
                             Prev = (page > 1) ? (page - 1).ToString() : null,
-                            Count = ordersToReturn.Count
+                            Count = totalOrders
                         }
                     },
                     Data = ordersToReturn

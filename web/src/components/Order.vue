@@ -67,7 +67,7 @@
           </div>
 
 
-          <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4" aria-label="Table navigation">
+          <!-- <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4" aria-label="Table navigation">
               <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
                   Showing
                   <span class="font-semibold text-gray-900 dark:text-white">1-10</span>
@@ -107,7 +107,65 @@
                       </a>
                   </li>
               </ul>
-          </nav>
+          </nav> -->
+          <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4" aria-label="Table navigation">
+              <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
+              Showing
+              <span class="font-semibold text-gray-900 dark:text-white">{{ getRangeStart() }}-{{ getRangeEnd() }}</span>
+              of
+              <span class="font-semibold text-gray-900 dark:text-white">{{ totalOrders }}</span>
+            </span>
+                <ul class="inline-flex items-stretch -space-x-px">
+                    <li>
+                      <a
+                        href="#"
+                        @click.prevent="prevPage"
+                        class="flex items-center justify-center h-full py-1.5 px-3 ml-0 text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                      >
+                        <span class="sr-only">Previous</span>
+                        <svg
+                          class="w-5 h-5"
+                          aria-hidden="true"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                          ></path>
+                        </svg>
+                      </a>
+                    </li>
+                    
+                    <li v-for="pageNumber in pageNumbers" :key="pageNumber">
+                    <a
+                      href="#"
+                      @click.prevent="goToPage(pageNumber)"
+                      :class="{ 'text-primary-600 bg-primary-50': page === pageNumber, 'text-gray-500 bg-white': page !== pageNumber }"
+                      class="flex items-center justify-center text-sm py-2 px-3 leading-tight border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                    >
+                      {{ pageNumber }}
+                    </a>
+                  </li>
+
+
+                    <li>
+                      <a
+                      href="#"
+                      @click.prevent="nextPage"
+                      class="flex items-center justify-center h-full py-1.5 px-3 ml-0 text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                    >
+                      <span class="sr-only">Next</span>
+                      <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                                </svg>
+                    </a>
+                    </li>
+                </ul>
+            </nav>
       </div>
   </div>
 </section>
@@ -374,8 +432,20 @@ export default {
       selectedCustomerId:null,
       selectedCustomerPhone:null,
       deletedOrders:[],
+      page: 1,
+      totalPage: 1,
+      totalOrders:1,
     };
   },
+  computed: {
+    pageNumbers() {
+        const pages = [];
+        for (let i = 1; i <= this.totalPage; i++) {
+          pages.push(i);
+        }
+        return pages;
+      },
+    },
   mounted() {
     this.fetchOrders();
     this.fetchItems();
@@ -399,9 +469,11 @@ export default {
     fetchOrders() {
       // Mengambil data dari API menggunakan Axios
       axios
-        .get("https://localhost:5001/API/orders/getallorder")
+        .get(`https://localhost:5001/API/orders/getallorder?page=${this.page}&pageSize=10`)
         .then((response) => {
           this.orders = response.data.data;
+          this.totalPage = Math.ceil(response.data.meta.pagination.count/10); 
+          this.totalOrders = response.data.meta.pagination.count;
         })
         .catch((error) => {
           console.error("Terjadi kesalahan:", error);
@@ -570,6 +642,29 @@ export default {
     },
     openModalDeleted() {
       document.getElementById('deletedModal').classList.remove('hidden');
+    },
+    nextPage() {
+        this.page++; 
+        this.fetchOrders(); 
+      },
+      prevPage() {
+      if (this.page > 1) {
+        this.page--; 
+        this.fetchOrders(); 
+      }
+      },
+      goToPage(pageNumber) {
+      if (pageNumber >= 1 && pageNumber <= this.totalPage) {
+        this.page = pageNumber; 
+        this.fetchOrders(); 
+      }
+    },
+    getRangeStart() {
+    return (this.page - 1) * 10 + 1; 
+    },
+    getRangeEnd() {
+      const end = this.page * 10; 
+      return end > this.totalOrders ? this.totalOrders : end;
     },
   },
 };
