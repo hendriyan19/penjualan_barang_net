@@ -5,17 +5,27 @@
         <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
             <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
                 <div class="w-full md:w-1/2">
-                    <form class="flex items-center">
-                        <label for="simple-search" class="sr-only">Search</label>
-                        <div class="relative w-full">
-                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                <svg aria-hidden="true" class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            <input type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Search" required="">
-                        </div>
-                    </form>
+                  <form class="flex items-center" @submit.prevent="performSearch">
+                    <label for="simple-search" class="sr-only">Search</label>
+                    <div class="relative w-full">
+                      <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <svg aria-hidden="true" class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                          <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                        </svg>
+                      </div>
+                      <input v-model="searchItems" type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Search" required>
+                    </div>
+                    <button type="submit" class="bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600">Search</button>
+                  </form>
+
+                  <!-- <div id="search-results">
+                    <ul v-if="resultSearch.length > 0">
+                      <li v-for="result in resultSearch" :key="result.ID">{{ result.Item_Name }}</li>
+                    </ul>
+                    <p v-else>No results found</p>
+                  </div> -->
+
+
                 </div>
                 <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
                     <button type="button" @click="openModalAdd" class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
@@ -51,7 +61,7 @@
                               <button type="button" @click="openModalEdit(item.id)" class="flex w-full items-center py-2 px-4 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">         
                                                 Edit
                                 </button>
-                                <button type="button" @click="softDeleteItem(item.id)" class="flex w-full items-center py-2 px-4 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">              
+                                <button type="button" @click.prevent="softDeleteItem(item.id)" class="flex w-full items-center py-2 px-4 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">              
                                                 Delete
                                 </button>
                             </td>
@@ -153,7 +163,7 @@
       id="input_item_price" type="text">
     </div>
   </div>
-  <button @click="updateItem" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+  <button @click.prevent="updateItem" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
   Update
 </button>
 </form>
@@ -209,7 +219,7 @@
       <input id="create_item_price" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" type="text">
     </div>
   </div>
-  <button @click="addItem" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+  <button @click.prevent="addItem" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
   Add
 </button>
   
@@ -272,7 +282,7 @@
               <td class="whitespace-nowrap px-6 py-4">
 
                 
-                <button @click="restoreItem(item.id)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <button @click.prevent="restoreItem(item.id)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
   Restore
 </button>
                 
@@ -321,6 +331,7 @@
   
   <script>
 import axios from 'axios';
+import Swal from 'sweetalert2'
 
   export default {
     data() {
@@ -331,6 +342,8 @@ import axios from 'axios';
         page: 1,
         totalPage: 1,
         totalItems:1,
+        searchItems:"",
+        resultSearch:[],
       };
     },
     mounted() {
@@ -412,91 +425,156 @@ import axios from 'axios';
       document.getElementById('addModal').classList.add('hidden');
     },
     updateItem() {
-        const itemId = this.editItemId; 
-        const itemName = document.getElementById('input_item_name').value;
-        const itemPrice = document.getElementById('input_item_price').value;
+    const itemId = this.editItemId;
+    const itemName = document.getElementById('input_item_name').value;
+    const itemPrice = document.getElementById('input_item_price').value;
 
-        
-        const requestBody = {
-            id: itemId,
-            item_Name: itemName,
-            item_Price: parseInt(itemPrice),
-        };
+    // Tambahkan konfirmasi Swal di sini
+    Swal.fire({
+        title: 'Konfirmasi',
+        text: 'Apakah Anda yakin ingin mengedit item ini?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya',
+        cancelButtonText: 'Batal',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const requestBody = {
+                id: itemId,
+                item_Name: itemName,
+                item_Price: parseInt(itemPrice),
+            };
 
-        
-        axios
-            .put("https://localhost:5001/API/items/UpdateItem", requestBody)
-            .then((response) => {
-            
-            console.log("Item updated successfully");
-            this.closeModalEdit();
-            this.fetchItems();
-            })
-            .catch((error) => {
-            console.error("Failed to update item:", error);
-            });
-    },
+            axios
+                .put("https://localhost:5001/API/items/UpdateItem", requestBody)
+                .then((response) => {
+                    this.closeModalEdit();
+                    this.fetchItems();
+
+                    // Tampilkan pesan Swal setelah berhasil mengedit item
+                    Swal.fire('Sukses', 'Item berhasil di edit', 'success');
+                })
+                .catch((error) => {
+                    console.error("Failed to update item:", error);
+                });
+        }
+    });
+},
     addItem() {
-    const itemName = document.getElementById('create_item_name').value;
-    const itemPrice = document.getElementById('create_item_price').value;
+  const itemName = document.getElementById('create_item_name').value;
+  const itemPrice = document.getElementById('create_item_price').value;
 
-    // Membuat objek yang akan dikirim sebagai payload
-    const requestBody = {
-      Item_Name: itemName,
-      Item_Price: parseFloat(itemPrice),
-    };
+  // Membuat objek yang akan dikirim sebagai payload
+  const requestBody = {
+    Item_Name: itemName,
+    Item_Price: parseFloat(itemPrice),
+  };
 
-    axios
-      .post("https://localhost:5001/API/items/AddItem", requestBody)
-      .then((response) => {
-        // Handle respon sukses
-        console.log("Item added successfully");
-        this.closeModalAdd();
-        this.fetchItems();
-      })
-      .catch((error) => {
-        console.error("Gagal menambahkan item:", error);
-      });
-  },
-  softDeleteItem(itemId) {
-
+  // Tampilkan konfirmasi menggunakan Swal
+  Swal.fire({
+    title: 'Konfirmasi',
+    text: 'Apakah Anda yakin ingin menambahkan item ini?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Ya',
+    cancelButtonText: 'Batal'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      axios
+        .post("https://localhost:5001/API/items/AddItem", requestBody)
+        .then((response) => {
+          // Handle respon sukses
+          this.closeModalAdd();
+          this.fetchItems();
+          
+          // Tampilkan pesan sukses menggunakan Swal
+          Swal.fire({
+            title: 'Sukses',
+            text: 'Item berhasil ditambahkan',
+            icon: 'success',
+          });
+        })
+        .catch((error) => {
+          console.error("Gagal menambahkan item:", error);
+        });
+    }
+  });
+},
+softDeleteItem(itemId) {
     const item_Id = itemId;
 
-    const requestBody = {
-      id: item_Id
-    };
-        axios
-            .put("https://localhost:5001/API/items/DeleteItem", requestBody)
-            .then((response) => {
-                console.log("Item soft deleted successfully");
-                
-                this.fetchItems(); // Mengambil data lagi setelah item dihapus
-                this.DeletedItems();
-            })
-            .catch((error) => {
-              console.log(requestBody);
-                console.error("Failed to soft delete item:", error);
-            });
+    // Tambahkan konfirmasi Swal di sini
+    Swal.fire({
+        title: 'Konfirmasi',
+        text: 'Apakah Anda yakin ingin menghapus item ini?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya',
+        cancelButtonText: 'Batal',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const requestBody = {
+                id: item_Id
+            };
+
+            axios
+                .put("https://localhost:5001/API/items/DeleteItem", requestBody)
+                .then((response) => {
+                    this.fetchItems(); // Mengambil data lagi setelah item dihapus
+                    this.DeletedItems();
+                    // Tampilkan pesan Swal setelah berhasil menghapus item
+                    Swal.fire('Sukses', 'Item berhasil dihapus', 'success');
+                })
+                .catch((error) => {
+                    console.error("Failed to soft delete item:", error);
+                });
+        }
+    });
     },
     restoreItem(itemId) {
+    const item_Id = itemId;
 
-      const item_Id = itemId;
+    // Tambahkan konfirmasi Swal di sini
+    Swal.fire({
+        title: 'Konfirmasi',
+        text: 'Apakah Anda yakin ingin mengembalikan item ini?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya',
+        cancelButtonText: 'Batal',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const requestBody = {
+                id: item_Id
+            };
 
-      const requestBody = {
-        id: item_Id
-      };
-          axios
-              .put("https://localhost:5001/API/items/RestoreItem", requestBody)
-              .then((response) => {
-                  console.log("Item soft deleted successfully");
-                  
-                  this.fetchItems(); // Mengambil data lagi setelah item dihapus
-                  this.DeletedItems();
-              })
-              .catch((error) => {
-                console.log(requestBody);
-                  console.error("Failed to soft delete item:", error);
-              });
+            axios
+                .put("https://localhost:5001/API/items/RestoreItem", requestBody)
+                .then((response) => {
+                    this.fetchItems(); // Mengambil data lagi setelah item direstore
+                    this.DeletedItems();
+
+                    // Tampilkan pesan Swal setelah berhasil merestore item
+                    Swal.fire('Sukses', 'Item berhasil direstore', 'success');
+                })
+                .catch((error) => {
+                    console.error("Gagal merestore item:", error);
+                });
+        }
+    });
+    },
+    performSearch() {
+        // Call your search function here using Vue.js data
+        axios
+          .get(`https://localhost:5001/API/items/search/${this.searchItems}`)
+          .then((response) => {
+            // Handle the search results here
+            this.resultSearch = response.data;
+            console.log(this.resultSearch);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
       },
       nextPage() {
         this.page++; 
@@ -521,6 +599,7 @@ import axios from 'axios';
       const end = this.page * 10; 
       return end > this.totalItems ? this.totalItems : end;
     },
+    
   
   
 },

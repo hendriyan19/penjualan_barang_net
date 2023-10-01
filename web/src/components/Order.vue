@@ -56,7 +56,7 @@
                             <button type="button" @click="openModalEdit(order.id)" class="flex w-full items-center py-2 px-4 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
                             Edit
                             </button>
-                              <button @click="softDeleteItem(order.id)" type="button" class="flex w-full items-center py-2 px-4 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">              
+                              <button @click.prevent="softDeleteItem(order.id)" type="button" class="flex w-full items-center py-2 px-4 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">              
                                               Delete
                               </button>
                           </td>
@@ -218,7 +218,7 @@
       <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="customer_phone_edit" type="text" disabled>
     </div>
   </div>
-  <button @click="updateOrder" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+  <button @click.prevent="updateOrder" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
   Update
 </button>
 </form>
@@ -306,7 +306,7 @@
       </select>
     </div>
   </div>
-  <button @click="addOrder" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+  <button @click.prevent="addOrder" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
   Addd
 </button>
 </form>
@@ -373,7 +373,7 @@
               <td class="whitespace-nowrap px-6 py-4">
 
                 
-                <button @click="restoreOrder(item.id)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <button @click.prevent="restoreOrder(item.id)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                 Restore
               </button>
                 
@@ -419,6 +419,7 @@
 
 <script>
 import axios from "axios";
+import Swal from 'sweetalert2'
 
 export default {
   data() {
@@ -510,10 +511,24 @@ export default {
         });
     },
     formatDate(dateString) {
-      // Memformat tanggal ke dalam "YYYY-MM-DD"
-      const date = new Date(dateString);
-      return date.toISOString().split('T')[0];
-    },
+  const dateParts = dateString.split('-');
+  if (dateParts.length === 3) {
+    const year = parseInt(dateParts[0]);
+    const month = parseInt(dateParts[1]) - 1; // Bulan dimulai dari 0 (Januari) - 11 (Desember)
+    const day = parseInt(dateParts[2]);
+    
+    const date = new Date(Date.UTC(year, month, day));
+    
+    const formattedYear = date.getUTCFullYear();
+    const formattedMonth = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const formattedDay = String(date.getUTCDate()).padStart(2, '0');
+    
+    return `${formattedYear}-${formattedMonth}-${formattedDay}`;
+  } else {
+    return dateString; // Kembalikan string aslinya jika tidak sesuai format
+  }
+},
+
     openModalEdit(itemId) {
         //this.editItemId = itemId;
     axios
@@ -537,44 +552,72 @@ export default {
     document.getElementById('editModal').classList.remove('hidden');
     },
     updateOrder() {
-        const itemId = this.selectedItemId; 
-        const requestBody = {
-        item_Id:itemId,
-        id:this.orderId
-        };
-        axios
-            .put("https://localhost:5001/API/orders/UpdateOrder", requestBody)
-            .then((response) => {
-            
-            console.log("Item updated successfully");
-            this.closeModalEdit();
-            this.fetchOrders();
-            this.fetchItems();
-            })
-            .catch((error) => {
-            console.error("Failed to update item:", error);
-            });
-    },
+    const itemId = this.selectedItemId;
+
+    // Tambahkan konfirmasi Swal di sini
+    Swal.fire({
+        title: 'Konfirmasi',
+        text: 'Apakah Anda yakin ingin mengupdate order ini?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya',
+        cancelButtonText: 'Batal',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const requestBody = {
+                item_Id: itemId,
+                id: this.orderId
+            };
+
+            axios
+                .put("https://localhost:5001/API/orders/UpdateOrder", requestBody)
+                .then((response) => {
+                    this.closeModalEdit();
+                    this.fetchOrders();
+                    this.fetchItems();
+
+                    // Tampilkan pesan Swal setelah berhasil mengupdate order
+                    Swal.fire('Sukses', 'Order berhasil diupdate', 'success');
+                })
+                .catch((error) => {
+                    console.error("Gagal mengupdate order:", error);
+                });
+        }
+    });
+},
     addOrder() {
     const orderDate = document.getElementById('order_date_add').value;
 
-    const requestBody = {
-      order_Date: orderDate,
-      customer_Id: this.selectedCustomerId,
-      item_Id: this.selectedItemId
-    };
-    axios
-      .post("https://localhost:5001/API/orders/AddOrder", requestBody)
-      .then((response) => {
-        // Handle respon sukses
-        console.log("Item added successfully");
-        this.closeModalAdd();
-        this.fetchItems();
-      })
-      .catch((error) => {
-        console.error("Gagal menambahkan item:", error);
-      });
-  },
+    // Tambahkan konfirmasi Swal di sini
+    Swal.fire({
+        title: 'Konfirmasi',
+        text: 'Apakah Anda yakin ingin menambahkan order ini?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya',
+        cancelButtonText: 'Batal',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const requestBody = {
+                order_Date: orderDate,
+                customer_Id: this.selectedCustomerId,
+                item_Id: this.selectedItemId
+            };
+
+            axios
+                .post("https://localhost:5001/API/orders/AddOrder", requestBody)
+                .then((response) => {
+                    this.closeModalAdd();
+                    this.fetchOrders();
+                    this.fetchItems();
+                    Swal.fire('Sukses', 'Order berhasil ditambahkan', 'success');
+                })
+                .catch((error) => {
+                    console.error("Gagal menambahkan order:", error);
+                });
+        }
+    });
+},
   DeletedItems() {
         // Mengambil data dari API menggunakan Axios
         axios
@@ -587,45 +630,68 @@ export default {
           });
       },
       softDeleteItem(orderId) {
+    const order_Id = orderId;
 
-        const order_Id = orderId;
+    // Tambahkan konfirmasi Swal di sini
+    Swal.fire({
+        title: 'Konfirmasi',
+        text: 'Apakah Anda yakin ingin menghapus order ini?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya',
+        cancelButtonText: 'Batal',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const requestBody = {
+                id: order_Id
+            };
 
-        const requestBody = {
-          id: order_Id
-        };
             axios
                 .put("https://localhost:5001/API/orders/DeleteItem", requestBody)
                 .then((response) => {
-                    console.log("Item soft deleted successfully");
-                    
-                    this.fetchOrders(); // Mengambil data lagi setelah item dihapus
+                    this.fetchOrders(); // Mengambil data lagi setelah order dihapus
                     this.DeletedItems();
+                    Swal.fire('Sukses', 'Order berhasil dihapus', 'success');
                 })
                 .catch((error) => {
-                  console.log(requestBody);
-                    console.error("Failed to soft delete item:", error);
+                    console.error("Gagal menghapus order:", error);
                 });
-        },
- restoreOrder(orderId) {
+        }
+    });
+},
+restoreOrder(orderId) {
+    const order_Id = orderId;
 
-      const order_Id = orderId;
+    // Tambahkan konfirmasi Swal di sini
+    Swal.fire({
+        title: 'Konfirmasi',
+        text: 'Apakah Anda yakin ingin mengembalikan order ini?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya',
+        cancelButtonText: 'Batal',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const requestBody = {
+                id: order_Id
+            };
 
-      const requestBody = {
-        id: order_Id
-      };
-          axios
-              .put("https://localhost:5001/API/orders/RestoreItem", requestBody)
-              .then((response) => {
-                  console.log("Item soft deleted successfully");
-                  
-                  this.fetchOrders(); // Mengambil data lagi setelah item dihapus
+            axios
+                .put("https://localhost:5001/API/orders/RestoreItem", requestBody)
+                .then((response) => {
+                    this.fetchOrders(); // Mengambil data lagi setelah order direstore
                     this.DeletedItems();
-              })
-              .catch((error) => {
-                console.log(requestBody);
-                  console.error("Failed to soft delete item:", error);
-              });
-      },
+
+                    // Tampilkan pesan Swal setelah berhasil merestore order
+                    Swal.fire('Sukses', 'Order berhasil direstore', 'success');
+                })
+                .catch((error) => {
+                    console.error("Gagal merestore order:", error);
+                });
+        }
+    });
+},
+
     closeModalEdit() {
       // Sembunyikan modal dengan mengubah class "block" menjadi "hidden"
       document.getElementById('editModal').classList.add('hidden');

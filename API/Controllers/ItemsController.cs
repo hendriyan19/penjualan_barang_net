@@ -212,6 +212,20 @@ namespace API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Restore Server Error");
             }
         }
+
+        [HttpGet("search/{searchItem}")]
+        public ActionResult<IEnumerable<itemVM>> SearchItem(string searchItem)
+        {
+            try
+            {
+                var results = itemsRepository.SearchItem(searchItem);
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }
 

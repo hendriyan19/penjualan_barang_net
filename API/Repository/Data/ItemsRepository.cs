@@ -41,6 +41,20 @@ namespace API.Repositories
             return result;
         }
 
+        public List<itemVM> SearchItem(string searchItem)
+        {
+            using IDbConnection dbConnection = new SqlConnection(_connectionString);
+            dbConnection.Open();
+
+            // Gunakan parameterized query untuk menghindari SQL Injection
+            string query = "SELECT ID, Item_Name, Item_Price, System_Deleted FROM items " +
+                        "WHERE Item_Name LIKE @SearchItem AND System_Deleted = 0";
+
+            var result = dbConnection.Query<itemVM>(query, new { SearchItem = "%" + searchItem + "%" }).AsList();
+
+            return result;
+        }
+
         public List<itemVM> GetItemById(long ID)
         {
             using IDbConnection dbConnection = new SqlConnection(_connectionString);
