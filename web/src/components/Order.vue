@@ -172,7 +172,7 @@
 
 
 <!-- Edit Modal -->
-<div id="editModal" class="fixed inset-0 z-10 flex items-center justify-center overflow-x-hidden overflow-y-auto hidden">
+<div v-if="isModalEditOpen" class="fixed inset-0 z-10 flex items-center justify-center overflow-x-hidden overflow-y-auto">
     <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
 
     <div class="modal-container bg-white dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 rounded-lg z-50 max-w-lg mx-auto p-4 sm:p-6">
@@ -200,7 +200,7 @@
       <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-last-name">
         Order Date
       </label>
-      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="order_date_edit" type="text" disabled>
+      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" v-model="input_order_date" type="text" disabled>
     </div>
   </div>
   <div class="flex flex-wrap -mx-3 mb-2">
@@ -209,13 +209,13 @@
       <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-zip">
         Customer Email
       </label>
-      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="customer_email_edit" type="text" disabled>
+      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" v-model="input_customer_email" type="text" disabled>
     </div>
     <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
       <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-zip">
         Customer Phone
       </label>
-      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="customer_phone_edit" type="text" disabled>
+      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" v-model="input_customer_phone" type="text" disabled>
     </div>
   </div>
   <button @click.prevent="updateOrder" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
@@ -250,7 +250,7 @@
 
 
   <!-- Add Modal -->
-<div id="addModal" class="fixed inset-0 z-10 flex items-center justify-center overflow-x-hidden overflow-y-auto hidden">
+<div v-if="isModalAddOpen" class="fixed inset-0 z-10 flex items-center justify-center overflow-x-hidden overflow-y-auto">
     <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
 
     <div class="modal-container bg-white dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 rounded-lg z-50 max-w-lg mx-auto p-4 sm:p-6">
@@ -278,7 +278,7 @@
       <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-last-name">
         Order Date
       </label>
-      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="order_date_add" type="date" placeholder="YYYY-MM-DD">
+      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" v-model="input_order_date" type="date" placeholder="YYYY-MM-DD">
     </div>
   </div>
   <div class="flex flex-wrap -mx-3 mb-2">
@@ -339,7 +339,7 @@
 
 
 <!-- Deleted Modal -->
-<div id="deletedModal" class="fixed inset-0 z-10 flex items-center justify-center overflow-x-hidden overflow-y-auto hidden">
+<div v-if="isModalDeletedOpen" class="fixed inset-0 z-10 flex items-center justify-center overflow-x-hidden overflow-y-auto">
     <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
 
     <div class="modal-container bg-white dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 rounded-lg z-50 max-w-lg mx-auto p-4 sm:p-6">
@@ -436,6 +436,12 @@ export default {
       page: 1,
       totalPage: 1,
       totalOrders:1,
+      isModalEditOpen:false,
+      isModalAddOpen:false,
+      isModalDeletedOpen:false,
+      input_order_date:'',//order_date_edit
+      input_customer_email:'',//customer_email_edit
+      input_customer_phone:'',//customer_phone_edit
     };
   },
   computed: {
@@ -541,15 +547,14 @@ export default {
                 }
             this.orderId = orderData.id
             const date = this.formatDate(orderData.order_Date);
-            // document.getElementById('item_name_edit').value = orderData.item_Name;
-            document.getElementById('order_date_edit').value = date;
-            document.getElementById('customer_email_edit').value = orderData.customer_Email;
-            document.getElementById('customer_phone_edit').value = orderData.customer_Phone;
+            this.input_order_date = date;
+            this.input_customer_email = orderData.customer_Email;
+            this.input_customer_phone = orderData.customer_Phone;
         })
         .catch((error) => {
             console.error("Terjadi kesalahan:", error);
         });
-    document.getElementById('editModal').classList.remove('hidden');
+    this.isModalEditOpen=true;
     },
     updateOrder() {
     const itemId = this.selectedItemId;
@@ -586,7 +591,8 @@ export default {
     });
 },
     addOrder() {
-    const orderDate = document.getElementById('order_date_add').value;
+    const orderDate = this.input_order_date;
+    
 
     // Tambahkan konfirmasi Swal di sini
     Swal.fire({
@@ -693,21 +699,19 @@ restoreOrder(orderId) {
 },
 
     closeModalEdit() {
-      // Sembunyikan modal dengan mengubah class "block" menjadi "hidden"
-      document.getElementById('editModal').classList.add('hidden');
+      this.isModalEditOpen=false;
     },
     openModalAdd() {
-      document.getElementById('addModal').classList.remove('hidden');
+      this.isModalAddOpen=true;
     },
     closeModalAdd() {
-      document.getElementById('addModal').classList.add('hidden');
+      this.isModalAddOpen=false;
     },
     closeModalDeleted() {
-      // Sembunyikan modal dengan mengubah class "block" menjadi "hidden"
-      document.getElementById('deletedModal').classList.add('hidden');
+      this.isModalDeletedOpen=false;
     },
     openModalDeleted() {
-      document.getElementById('deletedModal').classList.remove('hidden');
+      this.isModalDeletedOpen=true;
     },
     nextPage() {
         this.page++; 
