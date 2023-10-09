@@ -165,7 +165,7 @@
 
 
 <!-- Edit Modal -->
-<div id="editModal" class="fixed inset-0 z-10 flex items-center justify-center overflow-x-hidden overflow-y-auto hidden">
+<div  class="fixed inset-0 z-10 flex items-center justify-center overflow-x-hidden overflow-y-auto" v-if="isModalEditOpen">
     <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
 
     <div class="modal-container bg-white dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 rounded-lg z-50 max-w-lg mx-auto p-4 sm:p-6">
@@ -178,8 +178,8 @@
       <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-first-name">
         Item Name
       </label>
-      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" 
-      id="input_item_name" type="text">
+      <input v-model="input_item_name" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" 
+       type="text">
     </div>
   </div>
   <div class="flex flex-wrap -mx-3 mb-2">
@@ -187,8 +187,8 @@
       <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-first-name">
         Price
       </label>
-      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" 
-      id="input_item_price" type="text">
+      <input v-model="input_item_price" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" 
+      type="text">
     </div>
   </div>
   <button @click.prevent="updateItem" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
@@ -223,7 +223,7 @@
 
 
   <!-- Add Modal -->
-<div id="addModal" class="fixed inset-0 z-10 flex items-center justify-center overflow-x-hidden overflow-y-auto hidden">
+<div class="fixed inset-0 z-10 flex items-center justify-center overflow-x-hidden overflow-y-auto" v-if="isModalAddOpen">
     <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
 
     <div class="modal-container bg-white dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 rounded-lg z-50 max-w-lg mx-auto p-4 sm:p-6">
@@ -236,7 +236,7 @@
       <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-first-name">
         Item Name
       </label>
-      <input id="create_item_name" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" type="text">
+      <input v-model="input_item_name" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" type="text">
     </div>
   </div>
   <div class="flex flex-wrap -mx-3 mb-2">
@@ -244,7 +244,7 @@
       <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-first-name">
         Price
       </label>
-      <input id="create_item_price" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" type="text">
+      <input v-model="input_item_price" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" type="text">
     </div>
   </div>
   <button @click.prevent="addItem" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
@@ -280,7 +280,7 @@
 
 
   <!-- Deleted Modal -->
-<div id="deletedModal" class="fixed inset-0 z-10 flex items-center justify-center overflow-x-hidden overflow-y-auto hidden">
+<div class="fixed inset-0 z-10 flex items-center justify-center overflow-x-hidden overflow-y-auto" v-if="isModalDeletedOpen">
     <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
 
     <div class="modal-container bg-white dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 rounded-lg z-50 max-w-lg mx-auto p-4 sm:p-6">
@@ -372,6 +372,11 @@ import Swal from 'sweetalert2'
         totalItems:1,
         searchItems:"",
         resultSearch:[],
+        isModalEditOpen:false,
+        isModalAddOpen:false,
+        isModalDeletedOpen:false,
+        input_item_name:'',
+        input_item_price:'',
       };
     },
     mounted() {
@@ -427,35 +432,34 @@ import Swal from 'sweetalert2'
         .get(`https://localhost:5001/API/items/getitembyid/${itemId}`)
         .then((response) => {
             const itemData = response.data[0];
-            document.getElementById('input_item_name').value = itemData.item_Name;
-            document.getElementById('input_item_price').value = itemData.item_Price;
+            this.input_item_name = itemData.item_Name;
+            this.input_item_price = itemData.item_Price;
         })
         .catch((error) => {
             console.error("Terjadi kesalahan:", error);
         });
-    document.getElementById('editModal').classList.remove('hidden');
-},
+    this.isModalEditOpen=true;
+    },
     closeModalDeleted() {
       // Sembunyikan modal dengan mengubah class "block" menjadi "hidden"
-      document.getElementById('deletedModal').classList.add('hidden');
+      this.isModalDeletedOpen=false;
     },
     openModalDeleted() {
-      document.getElementById('deletedModal').classList.remove('hidden');
+      this.isModalDeletedOpen=true;
     },
     closeModalEdit() {
-      // Sembunyikan modal dengan mengubah class "block" menjadi "hidden"
-      document.getElementById('editModal').classList.add('hidden');
+      this.isModalEditOpen=false;
     },
     openModalAdd() {
-      document.getElementById('addModal').classList.remove('hidden');
+     this.isModalAddOpen=true;
     },
     closeModalAdd() {
-      document.getElementById('addModal').classList.add('hidden');
+      this.isModalAddOpen=false;
     },
     updateItem() {
     const itemId = this.editItemId;
-    const itemName = document.getElementById('input_item_name').value;
-    const itemPrice = document.getElementById('input_item_price').value;
+    const itemName = this.input_item_name;
+    const itemPrice = this.input_item_price;
 
     // Tambahkan konfirmasi Swal di sini
     Swal.fire({
@@ -489,8 +493,8 @@ import Swal from 'sweetalert2'
     });
 },
     addItem() {
-  const itemName = document.getElementById('create_item_name').value;
-  const itemPrice = document.getElementById('create_item_price').value;
+  const itemName = this.input_item_name;
+  const itemPrice = this.input_item_price;
 
   // Membuat objek yang akan dikirim sebagai payload
   const requestBody = {
