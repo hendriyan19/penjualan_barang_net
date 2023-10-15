@@ -269,20 +269,20 @@ namespace API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Terjadi kesalahan server saat mengambil data pelanggan"); // Menggunakan kode status 500 untuk kesalahan server
             }
         }
-        //[HttpPost("AddOrder")]
-        //public ActionResult AddOrder(orderVM newOrder)
-        //{
-        //    try
-        //    {
-        //        ordersRepository.AddOrder(newOrder);
 
-        //        return Ok(); // Return 200 OK if the order is successfully added
-        //    }
-        //    catch (Exception)
-        //    {
-        //        return StatusCode(StatusCodes.Status500InternalServerError, "Insert Server Error");
-        //    }
-        //}
+        [HttpGet("search/{searchOrder}")]
+        public ActionResult<IEnumerable<orderVM>> SearchOrder(string searchOrder)
+        {
+            try
+            {
+                var results = ordersRepository.SearchOrder(searchOrder);
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
 
         [HttpDelete("{id}")]
         public ActionResult DeleteOrder(long id)

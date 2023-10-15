@@ -534,7 +534,7 @@ export default {
     performSearch() {
     // Call your search function here using Vue.js data
     axios
-      .get(`https://localhost:5001/API/items/search/${this.searchItems}`)
+      .get(`https://localhost:5001/API/orders/search/${this.searchOrders}`)
       .then((response) => {
         // Handle the search results here
         this.resultSearch = response.data;

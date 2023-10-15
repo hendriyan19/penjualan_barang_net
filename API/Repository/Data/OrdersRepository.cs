@@ -199,5 +199,27 @@ namespace API.Repositories
         //         return false;
         //     }
         // }
+
+        public List<orderVM> SearchOrder(string searchOrder)
+        {
+            using IDbConnection dbConnection = new SqlConnection(_connectionString);
+            dbConnection.Open();
+
+            string query = @"SELECT oi.Item_Id, oi.Order_Id, oi.ID, o.Customer_Id, i.Item_Name, o.Order_Date, c.Customer_Email, c.Customer_Phone
+                           FROM orders_Items oi
+                           INNER JOIN orders o 
+                           ON oi.Order_Id = o.ID
+						   INNER JOIN customers c
+						   ON o.Customer_Id = c.ID
+						   INNER JOIN items i
+						   on oi.Item_Id = i.ID
+						   WHERE (i.Item_Name LIKE @SearchOrder 
+                           OR c.Customer_Email LIKE @SearchOrder 
+                           OR c.Customer_Phone LIKE @SearchOrder) and oi.System_Deleted=0";
+
+            var result = dbConnection.Query<orderVM>(query, new { SearchOrder = "%" + searchOrder + "%" }).AsList();
+
+            return result;
+        }
     }
 }
