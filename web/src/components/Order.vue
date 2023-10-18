@@ -1,17 +1,19 @@
 <template>
-  <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5 antialiased">
-  <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
-    <!-- Start coding here -->
-    <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
-    <div class="overflow-x-auto">
-      <SearchComponents
-    :searchItems="searchOrders"
-    @performSearch="performSearch"
-    @openModalAdd="openModalAdd"
-    @openModalDeleted="openModalDeleted"
-  ></SearchComponents>
-  <ReuseableTable :tableHeaders="['No', 'Item Name', 'Tanggal Order', 'Customer Email','Customer Phone']">
-    <tbody>
+<ReuseableTable :tableHeaders="['No', 'Item Name', 'Tanggal Order', 'Customer Email','Customer Phone','Action']"
+          :page="page" :totalItems="totalOrders" 
+          :rangeStart="getRangeStart()" 
+          :rangeEnd="getRangeEnd()"
+          :pageNumbers="pageNumbers" 
+          @prev-page="prevPage"
+          @next-page="nextPage"
+          @go-to-page="goToPage"
+          :searchItems="searchText" 
+          @performSearch="performSearch" 
+          @openModalAdd="openModalAdd"
+          @openModalDeleted="openModalDeleted"
+          >
+            <tbody v-if="resultSearch.length === 0">
+
               <tr v-for="(order, index) in orders" :key="order.id" class="border-b dark:border-gray-700">
                 <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ index + 1
                 }}</th>
@@ -33,22 +35,32 @@
               </tr>
 
             </tbody>
-        </ReuseableTable>
-      </div>
-      <Pagination
-    :page="page"
-    :totalItems="totalItems"
-    :rangeStart="getRangeStart()"
-    :rangeEnd="getRangeEnd()"
-    :pageNumbers="pageNumbers"
-    @prev-page="prevPage"
-    @next-page="nextPage"
-    @go-to-page="goToPage"
-  />
+            <tbody v-else>
+              
+              <tr v-for="(order, index) in resultSearch" :key="order.id" class="border-b dark:border-gray-700">
+                <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ index + 1
+                }}</th>
+                <td class="px-4 py-3">{{ order.item_Name }}</td>
+                <td class="px-4 py-3">{{ formatDate(order.order_Date) }}</td>
+                <td class="px-4 py-3">{{ order.customer_Email }}</td>
+                <td class="px-4 py-3">{{ order.customer_Phone }}</td>
+                <td class="px-4 py-3 flex items-center justify-end">
 
-    </div>
-  </div>
-</section>
+                  <button type="button" @click="openModalEdit(order.id)"
+                    class="flex w-full items-center py-2 px-4 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+                    Edit
+                  </button>
+                  <button @click.prevent="softDeleteItem(order.id)" type="button"
+                    class="flex w-full items-center py-2 px-4 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+                    Delete
+                  </button>
+                </td>
+              </tr>
+
+            </tbody>
+          </ReuseableTable>
+
+
 
 
   <!-- Edit Modal -->
@@ -207,14 +219,10 @@ import axios from "axios";
 import Swal from 'sweetalert2'
 import Modal from './Modal.vue';
 import ReuseableTable from './Table.vue';
-import Pagination from './Pagination.vue';
-import SearchComponents from './SearchComponents.vue';
 export default {
   components: {
     Modal,
     ReuseableTable,
-    Pagination,
-    SearchComponents,
   },
   data() {
     return {
@@ -230,13 +238,14 @@ export default {
       page: 1,
       totalPage: 1,
       totalOrders: 1,
+      resultSearch: [],
       isModalEditOpen: false,
       isModalAddOpen: false,
       isModalDeletedOpen: false,
       input_order_date: '',//order_date_edit
       input_customer_email: '',//customer_email_edit
       input_customer_phone: '',//customer_phone_edit
-      searchOrders: "",
+      searchText: "",
     };
   },
   computed: {
@@ -531,14 +540,13 @@ export default {
       const end = this.page * 10;
       return end > this.totalOrders ? this.totalOrders : end;
     },
-    performSearch() {
-    // Call your search function here using Vue.js data
+    performSearch(searchText) {
+    this.searchText=searchText;
     axios
-      .get(`https://localhost:5001/API/orders/search/${this.searchOrders}`)
+      .get(`https://localhost:5001/API/orders/search/${this.searchText}`)
       .then((response) => {
         // Handle the search results here
         this.resultSearch = response.data;
-        console.log(this.resultSearch);
       })
       .catch((error) => {
         console.error(error);
