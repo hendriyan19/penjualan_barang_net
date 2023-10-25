@@ -85,7 +85,7 @@
 </section>
   </template>
   
-  <script>
+  <!-- <script>
   export default {
     emits: ['prev-page', 'next-page', 'go-to-page', 'performSearch', 'openModalAdd', 'openModalDeleted'],
     data() {
@@ -126,4 +126,45 @@
     },
     },
   };
+  </script> -->
+  
+  <script setup>
+  import { ref, defineProps, defineEmits } from 'vue';
+  
+  const props = defineProps([
+    'tableHeaders', 'page', 'totalItems', 'rangeStart', 'rangeEnd', 'pageNumbers', 'searchItems'
+  ]);
+  
+  const searchText = ref(props.searchItems);
+  
+  const emit = defineEmits(['prev-page', 'next-page', 'go-to-page', 'performSearch', 'openModalAdd', 'openModalDeleted']);
+  
+  const prevPage = () => {
+    emit('prev-page');
+  };
+  
+  const nextPage = () => {
+    emit('next-page');
+  };
+  
+  const goToPage = (pageNumber) => {
+    emit('go-to-page', pageNumber);
+  };
+  
+  const performSearch = () => {
+    emit('performSearch', searchText.value);
+  };
+  
+  const openModalAdd = () => {
+    emit('openModalAdd');
+  };
+  
+  const openModalDeleted = () => {
+    emit('openModalDeleted');
+  };
+  
+  const searchTextChanged = (event) => {
+    searchText.value = event.target.value;
+  };
   </script>
+  
