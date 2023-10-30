@@ -85,49 +85,6 @@
 </section>
   </template>
   
-  <!-- <script>
-  export default {
-    emits: ['prev-page', 'next-page', 'go-to-page', 'performSearch', 'openModalAdd', 'openModalDeleted'],
-    data() {
-      return {
-        searchText: this.searchItems,
-      };
-    },
-    props: {
-      tableHeaders: Array, // Array of column headers
-      page: Number,
-      totalItems: Number,
-      rangeStart: Number,
-      rangeEnd: Number,
-      pageNumbers: Array,
-      searchItems: String,
-    },
-    methods: {
-      prevPage() {
-        this.$emit('prev-page');
-      },
-      nextPage() {
-        this.$emit('next-page');
-      },
-      goToPage(pageNumber) {
-        this.$emit('go-to-page', pageNumber);
-      },
-      performSearch() {
-        this.$emit('performSearch', this.searchText);
-      },
-      openModalAdd() {
-        this.$emit('openModalAdd');
-      },
-      openModalDeleted() {
-        this.$emit('openModalDeleted');
-      },
-      searchTextChanged(event) {
-      this.searchText = event.target.value;
-    },
-    },
-  };
-  </script> -->
-  
   <script setup>
   import { ref, defineProps, defineEmits } from 'vue';
   

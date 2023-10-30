@@ -149,6 +149,9 @@ import { ref, computed} from 'vue';
 import Swal from 'sweetalert2';
 import Modal from './Modal.vue';
 import ReuseableTable from './Table.vue';
+import { useStore } from '../stores/item';
+
+const storeItems = useStore();
 
 const items = ref([]);
 const deletedItems = ref([]);
@@ -167,17 +170,32 @@ const headers = ["No", "Item Name", "Item Price", "Actions"];
 
 
 
+// const fetchItems = async () => {
+//   try {
+//     const response = await axios.get(`https://localhost:5001/API/items/getallitem?page=${page.value}&pageSize=10`);
+//     items.value = response.data.data;
+//     totalPage.value = Math.ceil(response.data.meta.pagination.count / 10);
+//     totalItems.value = response.data.meta.pagination.count;
+//   } catch (error) {
+//     console.error("Terjadi kesalahan:", error);
+//   }
+// };
+// fetchItems();
+
+
+
 const fetchItems = async () => {
   try {
-    const response = await axios.get(`https://localhost:5001/API/items/getallitem?page=${page.value}&pageSize=10`);
-    items.value = response.data.data;
-    totalPage.value = Math.ceil(response.data.meta.pagination.count / 10);
-    totalItems.value = response.data.meta.pagination.count;
+    await storeItems.fetchItems(page);
+    items.value = storeItems.getItems;
+    totalPage.value = storeItems.getTotalPage;
+    totalItems.value = storeItems.getTotalItems;
   } catch (error) {
     console.error("Terjadi kesalahan:", error);
   }
 };
 fetchItems();
+
 const DeletedItems = async () => {
   try {
     const response = await axios.get("https://localhost:5001/API/items/getalldeleted");
